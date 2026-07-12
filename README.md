@@ -87,6 +87,10 @@ Wireframes for the Home, Explore, Messages, and Profile screens were designed by
 - **Week 2:** Build static UI screens (Home, Explore, Messages, Profile, and Login once designed)
 - **Week 3+:** Wire up Firebase (auth, applications, real-time chat), push notifications
 
+## Version Control Log
+- Repository initialized and scaffolded locally.
+- Pushed to `SLU-0607-MAD-TEAM-2/Launch_Pad` on GitHub by Joshua Gomez (Documentation & Version Control Manager), July 12 2026.
+
 ## Getting Started
 
 ```bash
