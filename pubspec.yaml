@@ -1,0 +1,32 @@
+name: launchpad_flutter_app
+description: "LaunchPad — a mobile matching platform connecting founders, developers, and designers to build tech and media projects together."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.1              # state management
+  firebase_core: ^2.27.0        # backend: auth, profiles, applications
+  firebase_auth: ^4.17.4
+  cloud_firestore: ^4.15.4
+  firebase_storage: ^11.6.6     # portfolio images / project cover photos
+  flutter_card_swiper: ^7.0.1   # swipeable startup cards (Home feed)
+  cached_network_image: ^3.3.1
+  url_launcher: ^6.2.4          # open Portfolio/GitHub/LinkedIn links
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
