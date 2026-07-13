@@ -45,5 +45,16 @@ build/
 .idea/
 *.iml
 
+# Unused platforms (mobile only)
+linux/
+macos/
+windows/
+
+# Unused assets
+stitch_assets/
+
+# Auto-generated
+.metadata
+
 # macOS
 .DS_Store
