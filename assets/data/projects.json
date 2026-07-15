@@ -1,0 +1,46 @@
+[
+  {
+    "id": "proj1",
+    "founderId": "u1",
+    "title": "LearnAI",
+    "description": "AI-powered personalized learning platform that adapts to each student's pace and style.",
+    "industry": "EdTech",
+    "stage": "idea",
+    "rolesNeeded": ["developer", "designer"],
+    "lookingFor": ["Full-stack developer", "UI/UX designer"],
+    "createdAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "proj2",
+    "founderId": "u3",
+    "title": "BlockHealth",
+    "description": "Blockchain-based medical records system for secure patient data management.",
+    "industry": "HealthTech",
+    "stage": "mvp",
+    "rolesNeeded": ["developer"],
+    "lookingFor": ["Blockchain developer"],
+    "createdAt": "2025-11-15T10:00:00.000Z"
+  },
+  {
+    "id": "proj3",
+    "founderId": "u5",
+    "title": "GreenRoute",
+    "description": "Carbon-neutral logistics optimization for last-mile delivery companies.",
+    "industry": "Climate Tech",
+    "stage": "growth",
+    "rolesNeeded": ["developer", "designer"],
+    "lookingFor": ["ML engineer", "Product designer"],
+    "createdAt": "2025-10-20T10:00:00.000Z"
+  },
+  {
+    "id": "proj4",
+    "founderId": "u6",
+    "title": "SocialCooking",
+    "description": "Social platform for home cooks to share recipes and host virtual cooking classes.",
+    "industry": "Social",
+    "stage": "idea",
+    "rolesNeeded": ["developer", "creative"],
+    "lookingFor": ["Mobile developer", "Content creator"],
+    "createdAt": "2025-12-10T10:00:00.000Z"
+  }
+]

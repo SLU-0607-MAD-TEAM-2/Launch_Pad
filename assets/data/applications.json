@@ -1,0 +1,29 @@
+[
+  {
+    "id": "a1",
+    "projectId": "proj1",
+    "applicantId": "u2",
+    "applicantName": "Sophie Martin",
+    "coverLetter": "I've been working with AI and education for 3 years. I'd love to bring my ML expertise to LearnAI!",
+    "status": "pending",
+    "createdAt": "2025-12-05T10:00:00.000Z"
+  },
+  {
+    "id": "a2",
+    "projectId": "proj1",
+    "applicantId": "u4",
+    "applicantName": "Raj Patel",
+    "coverLetter": "Full-stack developer with experience in building scalable EdTech platforms.",
+    "status": "reviewed",
+    "createdAt": "2025-12-06T10:00:00.000Z"
+  },
+  {
+    "id": "a3",
+    "projectId": "proj3",
+    "applicantId": "u7",
+    "applicantName": "David Kim",
+    "coverLetter": "ML engineer passionate about climate tech. I've built similar optimization systems before.",
+    "status": "accepted",
+    "createdAt": "2025-11-01T10:00:00.000Z"
+  }
+]

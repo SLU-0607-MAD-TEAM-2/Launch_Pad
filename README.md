@@ -85,7 +85,30 @@ Wireframes for the Home, Explore, Messages, and Profile screens were designed by
 
 - **Week 1:** Proposal, wireframes, project setup ✅ (this repo)
 - **Week 2:** Build static UI screens (Home, Explore, Messages, Profile, and Login once designed)
-- **Week 3+:** Wire up Firebase (auth, applications, real-time chat), push notifications
+- **Week 3:** Connected screens to JSON data, added feedback form with validation, added error handling ✅
+- **Week 4+:** Wire up Firebase (auth, applications, real-time chat), push notifications
+
+## Week 3 Changes
+
+### Data Integration
+- Added `MockApiService` that loads all data from JSON files in `assets/data/` (profiles, projects, matches, messages, applications)
+- Swipe/Discovery screens now load user profiles from `profiles.json`
+- Explore screen now loads projects from `projects.json` via `DiscoveryProvider`
+
+### New Screens
+- **Feedback Screen** (`lib/screens/feedback/feedback_screen.dart`) — form with name, email, category dropdown, star rating, and comments
+- Accessible from Settings > Send Feedback
+
+### Forms & Validation
+- **Login form** — email (required + regex format) and password (required + min 6 chars)
+- **Edit Profile form** — name, role, location, bio (all required)
+- **Feedback form** — name (required), email (required + valid format), category (required), rating (required), comments (required + min 10 chars)
+
+### Error Handling
+- `MockApiService.loadAll()` wrapped in try/catch with `isLoaded`, `hasError`, and `errorMessage` state
+
+### Bug Fixes
+- Fixed `ExploreScreen` referencing undefined `mockProjects` variable — now uses `DiscoveryProvider.projects`
 
 ## Version Control Log
 - Repository initialized and scaffolded locally.

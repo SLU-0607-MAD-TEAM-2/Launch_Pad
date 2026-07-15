@@ -116,6 +116,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.pushNamed(context, "/edit_profile");
               },
             ),
+            _buildSettingsItem(
+              icon: Icons.feedback_outlined,
+              title: 'Send Feedback',
+              theme: theme,
+              onTap: () {
+                Navigator.pushNamed(context, "/feedback");
+              },
+            ),
             const SizedBox(height: 16),
             // Notifications section header
             const Padding(

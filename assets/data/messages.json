@@ -1,0 +1,72 @@
+{
+  "p1": [
+    {
+      "id": "msg1",
+      "senderId": "p1",
+      "receiverId": "current_user",
+      "content": "Hey! I saw your profile — love that you're building with Flutter!",
+      "timestamp": "2026-07-15T13:00:00.000Z",
+      "isRead": true
+    },
+    {
+      "id": "msg2",
+      "senderId": "current_user",
+      "receiverId": "p1",
+      "content": "Thanks Sarah! Your AI projects look amazing. Would love to chat about potential collab.",
+      "timestamp": "2026-07-15T13:10:00.000Z",
+      "isRead": true
+    },
+    {
+      "id": "msg3",
+      "senderId": "p1",
+      "receiverId": "current_user",
+      "content": "Absolutely! I'm working on an AI-powered code review tool. Would love your input!",
+      "timestamp": "2026-07-15T13:15:00.000Z",
+      "isRead": true
+    },
+    {
+      "id": "msg4",
+      "senderId": "p1",
+      "receiverId": "current_user",
+      "content": "Are you free for a quick call this weekend?",
+      "timestamp": "2026-07-15T13:16:00.000Z",
+      "isRead": false
+    }
+  ],
+  "p3": [
+    {
+      "id": "msg5",
+      "senderId": "p3",
+      "receiverId": "current_user",
+      "content": "Love your product sense! Would you be open to reviewing my portfolio?",
+      "timestamp": "2026-07-14T13:00:00.000Z",
+      "isRead": true
+    },
+    {
+      "id": "msg6",
+      "senderId": "current_user",
+      "receiverId": "p3",
+      "content": "Of course! Your design system work is impressive. Happy to swap feedback.",
+      "timestamp": "2026-07-14T14:00:00.000Z",
+      "isRead": true
+    }
+  ],
+  "p5": [
+    {
+      "id": "msg7",
+      "senderId": "current_user",
+      "receiverId": "p5",
+      "content": "Hey Aisha! Your Go projects are fire. Any interest in collaborating on a dev tool?",
+      "timestamp": "2026-07-13T13:00:00.000Z",
+      "isRead": true
+    },
+    {
+      "id": "msg8",
+      "senderId": "p5",
+      "receiverId": "current_user",
+      "content": "Hey thanks! Always open to collab. What did you have in mind?",
+      "timestamp": "2026-07-13T14:30:00.000Z",
+      "isRead": true
+    }
+  ]
+}

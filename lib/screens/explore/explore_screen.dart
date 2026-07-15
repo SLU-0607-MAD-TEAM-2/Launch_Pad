@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/startup_project.dart';
+import '../../providers/discovery_provider.dart';
 import 'project_details_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
@@ -23,7 +25,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   List<StartupProject> get _filteredProjects {
-    return mockProjects.where((project) {
+    final allProjects = Provider.of<DiscoveryProvider>(context, listen: false).projects;
+    return allProjects.where((project) {
       // 1. Tag/Filter match
       bool matchesFilter = true;
       if (_selectedFilter != 'All') {
