@@ -1,14 +1,18 @@
 import 'package:flutter/foundation.dart';
 import '../models/user_profile.dart';
-
-import '../data/sample_data.dart';
+import '../models/startup_project.dart';
+import '../services/mock_api_service.dart';
 
 class DiscoveryProvider extends ChangeNotifier {
+  final MockApiService _apiService;
   List<UserProfile> _profiles = [];
   bool _isLoading = false;
   String? _lastSwipedId;
 
+  DiscoveryProvider(this._apiService);
+
   List<UserProfile> get profiles => _profiles;
+  List<StartupProject> get projects => _apiService.projects;
   bool get isLoading => _isLoading;
   bool get isEmpty => _profiles.isEmpty;
   String? get lastSwipedId => _lastSwipedId;
@@ -16,7 +20,7 @@ class DiscoveryProvider extends ChangeNotifier {
   void loadProfiles() {
     _isLoading = true;
     notifyListeners();
-    _profiles = List.from(SampleData.profiles)..shuffle();
+    _profiles = List.from(_apiService.profiles)..shuffle();
     _isLoading = false;
     notifyListeners();
   }

@@ -1,5 +1,4 @@
-/// Model representing a user's application to a startup project.
-enum ApplicationStatus { pending, accepted, rejected }
+import 'package:flutter/foundation.dart';
 
 class Application {
   final String id;
@@ -15,42 +14,68 @@ class Application {
     required this.projectId,
     required this.projectName,
     required this.applicantId,
-    required this.coverNote,
-    required this.appliedAt,
+    this.coverNote = '',
+    DateTime? appliedAt,
     this.status = ApplicationStatus.pending,
-  });
+  }) : appliedAt = appliedAt ?? DateTime.now();
 
-  Application copyWith({ApplicationStatus? status}) {
+  factory Application.fromJson(Map<String, dynamic> json) {
     return Application(
-      id: id,
-      projectId: projectId,
-      projectName: projectName,
-      applicantId: applicantId,
-      coverNote: coverNote,
-      appliedAt: appliedAt,
-      status: status ?? this.status,
+      id: json['id'] as String,
+      projectId: json['projectId'] as String,
+      projectName: json['projectName'] as String,
+      applicantId: json['applicantId'] as String,
+      coverNote: json['coverNote'] as String? ?? '',
+      appliedAt: json['appliedAt'] != null
+          ? DateTime.parse(json['appliedAt'] as String)
+          : null,
+      status: applicationStatusFromString(json['status'] as String?),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'projectId': projectId,
+      'projectName': projectName,
+      'applicantId': applicantId,
+      'coverNote': coverNote,
+      'appliedAt': appliedAt.toIso8601String(),
+      'status': status.name,
+    };
+  }
+
+  static List<Application> sampleApplications() {
+    return [
+      Application(
+        id: 'app1',
+        projectId: '1',
+        projectName: 'HEALTHAI',
+        applicantId: 'user1',
+        coverNote: 'I have experience building medical apps.',
+        appliedAt: DateTime.now().subtract(const Duration(days: 2)),
+      ),
+      Application(
+        id: 'app2',
+        projectId: '2',
+        projectName: 'EDUSNAP',
+        applicantId: 'user2',
+        coverNote: 'Love the concept! I can help with the UI.',
+        appliedAt: DateTime.now().subtract(const Duration(days: 1)),
+      ),
+    ];
   }
 }
 
-/// Mock applications for the logged-in user.
-final List<Application> mockApplications = [
-  Application(
-    id: 'app_001',
-    projectId: 'healthai',
-    projectName: 'HEALTHAI',
-    applicantId: 'current_user',
-    coverNote: 'I am excited to contribute my Flutter skills to HealthAI!',
-    appliedAt: DateTime(2026, 7, 10),
-    status: ApplicationStatus.pending,
-  ),
-  Application(
-    id: 'app_002',
-    projectId: 'cryptoquest',
-    projectName: 'CRYPTOQUEST',
-    applicantId: 'current_user',
-    coverNote: 'My Web3 and Dart expertise would be a great fit.',
-    appliedAt: DateTime(2026, 7, 5),
-    status: ApplicationStatus.accepted,
-  ),
-];
+enum ApplicationStatus { pending, approved, rejected }
+
+ApplicationStatus applicationStatusFromString(String? s) {
+  switch (s) {
+    case 'approved':
+      return ApplicationStatus.approved;
+    case 'rejected':
+      return ApplicationStatus.rejected;
+    default:
+      return ApplicationStatus.pending;
+  }
+}

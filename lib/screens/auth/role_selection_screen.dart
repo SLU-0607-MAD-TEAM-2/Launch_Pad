@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../utils/design_colors.dart';
 import '../../services/auth_service.dart';
-import '../../services/firestore_service.dart';
-import '../../providers/swipe_provider.dart';
-import '../home/home_feed_screen.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
   final String name;
@@ -119,7 +116,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => HomeFeedScreen(swipeProvider: SwipeProvider(FirestoreService()))),
+          MaterialPageRoute(builder: (_) => const MainShell()),
           (route) => false,
         );
       }

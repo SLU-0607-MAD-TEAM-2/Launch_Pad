@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
+import '../services/mock_api_service.dart';
 
-/// SwipeProvider manages the state of the swipe deck:
-/// - The ordered deck of profiles
-/// - Matched profiles
-/// - The current card's drag offset and rotation
 class SwipeProvider extends ChangeNotifier {
-  final List<UserProfile> _deck = List.from(mockSwipeProfiles);
+  final List<UserProfile> _deck = [];
   final List<UserProfile> _matches = [];
   final List<UserProfile> _passed = [];
 
@@ -14,8 +11,11 @@ class SwipeProvider extends ChangeNotifier {
   double _dragDy = 0.0;
   bool _showMatchOverlay = false;
   UserProfile? _lastMatch;
+  final MockApiService _apiService;
 
-  // --- Getters ---
+  SwipeProvider(this._apiService) {
+    _deck.addAll(List.from(_apiService.swipeProfiles));
+  }
 
   List<UserProfile> get deck => _deck;
   List<UserProfile> get matches => _matches;
@@ -30,8 +30,6 @@ class SwipeProvider extends ChangeNotifier {
 
   bool get isDeckEmpty => _deck.isEmpty;
 
-  // --- Drag state ---
-
   void updateDrag(double dx, double dy) {
     _dragDx = dx;
     _dragDy = dy;
@@ -44,9 +42,6 @@ class SwipeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Swipe actions ---
-
-  /// Swipe right — it's a match!
   void swipeRight() {
     if (_deck.isEmpty) return;
     final matched = _deck.first;
@@ -59,7 +54,6 @@ class SwipeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Swipe left — pass.
   void swipeLeft() {
     if (_deck.isEmpty) return;
     _passed.add(_deck.first);
@@ -69,11 +63,10 @@ class SwipeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Star / Super-like — add to matches with priority flag.
   void superLike() {
     if (_deck.isEmpty) return;
     final liked = _deck.first;
-    _matches.insert(0, liked); // Priority placement
+    _matches.insert(0, liked);
     _lastMatch = liked;
     _deck.removeAt(0);
     _dragDx = 0.0;
@@ -86,9 +79,10 @@ class SwipeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Reload the deck (for demo reset).
   void reloadDeck() {
-    _deck.addAll(List.from(mockSwipeProfiles));
+    _deck
+      ..clear()
+      ..addAll(List.from(_apiService.swipeProfiles));
     _matches.clear();
     _passed.clear();
     _showMatchOverlay = false;

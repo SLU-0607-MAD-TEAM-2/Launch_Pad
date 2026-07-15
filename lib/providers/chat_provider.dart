@@ -1,17 +1,23 @@
 import 'package:flutter/foundation.dart';
 import '../models/message.dart';
-import '../data/sample_data.dart';
+import '../services/mock_api_service.dart';
 
 class ChatProvider extends ChangeNotifier {
+  final MockApiService _apiService;
   final Map<String, List<Message>> _conversations = {};
+
+  ChatProvider(this._apiService);
 
   List<Message> messagesFor(String userId) =>
       _conversations[userId] ?? [];
 
   void loadConversations() {
     _conversations.clear();
-    for (final entry in SampleData.conversations.entries) {
-      _conversations[entry.key] = List.from(entry.value);
+    for (final profile in _apiService.profiles) {
+      final msgs = _apiService.messagesFor(profile.id);
+      if (msgs.isNotEmpty) {
+        _conversations[profile.id] = List.from(msgs);
+      }
     }
     notifyListeners();
   }

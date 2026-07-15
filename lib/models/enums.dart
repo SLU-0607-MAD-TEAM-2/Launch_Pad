@@ -9,9 +9,9 @@ Role? roleFromString(String s) {
   return null;
 }
 
-ExperienceLevel levelFromString(String s) {
-  for (final l in ExperienceLevel.values) {
-    if (l.name == s) return ExperienceLevel.entry;
-  }
-  return ExperienceLevel.entry;
+ExperienceLevel levelFromString(String level) {
+  return ExperienceLevel.values.firstWhere(
+    (e) => e.name == level,
+    orElse: () => ExperienceLevel.entry,
+  );
 }
