@@ -1,55 +1,97 @@
 import 'package:flutter/material.dart';
-import '../models/startup_project.dart';
-import '../services/firestore_service.dart';
+import '../models/user_profile.dart';
 
+/// SwipeProvider manages the state of the swipe deck:
+/// - The ordered deck of profiles
+/// - Matched profiles
+/// - The current card's drag offset and rotation
 class SwipeProvider extends ChangeNotifier {
-  final FirestoreService _firestore;
-  List<StartupProject> _candidates = [];
-  int _currentIndex = 0;
-  final List<String> _likedIds = [];
-  final List<String> _dislikedIds = [];
+  final List<UserProfile> _deck = List.from(mockSwipeProfiles);
+  final List<UserProfile> _matches = [];
+  final List<UserProfile> _passed = [];
 
-  SwipeProvider(this._firestore) {
-    _loadCandidates();
-  }
+  double _dragDx = 0.0;
+  double _dragDy = 0.0;
+  bool _showMatchOverlay = false;
+  UserProfile? _lastMatch;
 
-  List<StartupProject> get candidates => _candidates;
-  int get currentIndex => _currentIndex;
-  StartupProject? get current =>
-      _currentIndex < _candidates.length ? _candidates[_currentIndex] : null;
-  bool get isEmpty => _currentIndex >= _candidates.length;
-  int get totalCount => _candidates.length;
-  int get likedCount => _likedIds.length;
+  // --- Getters ---
 
-  void _loadCandidates() {
-    _candidates = List.from(_firestore.getProjects());
-    _candidates.shuffle();
-    _currentIndex = 0;
-    _likedIds.clear();
-    _dislikedIds.clear();
-  }
+  List<UserProfile> get deck => _deck;
+  List<UserProfile> get matches => _matches;
+  List<UserProfile> get passed => _passed;
 
-  void swipeRight() {
-    if (current != null) {
-      _likedIds.add(current!.id);
-      _currentIndex++;
-      notifyListeners();
-    }
-  }
+  UserProfile? get currentProfile => _deck.isNotEmpty ? _deck.first : null;
 
-  void swipeLeft() {
-    if (current != null) {
-      _dislikedIds.add(current!.id);
-      _currentIndex++;
-      notifyListeners();
-    }
-  }
+  double get dragDx => _dragDx;
+  double get dragDy => _dragDy;
+  bool get showMatchOverlay => _showMatchOverlay;
+  UserProfile? get lastMatch => _lastMatch;
 
-  void reset() {
-    _loadCandidates();
+  bool get isDeckEmpty => _deck.isEmpty;
+
+  // --- Drag state ---
+
+  void updateDrag(double dx, double dy) {
+    _dragDx = dx;
+    _dragDy = dy;
     notifyListeners();
   }
 
-  List<StartupProject> get likedProjects =>
-      _candidates.where((u) => _likedIds.contains(u.id)).toList();
+  void resetDrag() {
+    _dragDx = 0.0;
+    _dragDy = 0.0;
+    notifyListeners();
+  }
+
+  // --- Swipe actions ---
+
+  /// Swipe right — it's a match!
+  void swipeRight() {
+    if (_deck.isEmpty) return;
+    final matched = _deck.first;
+    _matches.add(matched);
+    _lastMatch = matched;
+    _deck.removeAt(0);
+    _dragDx = 0.0;
+    _dragDy = 0.0;
+    _showMatchOverlay = true;
+    notifyListeners();
+  }
+
+  /// Swipe left — pass.
+  void swipeLeft() {
+    if (_deck.isEmpty) return;
+    _passed.add(_deck.first);
+    _deck.removeAt(0);
+    _dragDx = 0.0;
+    _dragDy = 0.0;
+    notifyListeners();
+  }
+
+  /// Star / Super-like — add to matches with priority flag.
+  void superLike() {
+    if (_deck.isEmpty) return;
+    final liked = _deck.first;
+    _matches.insert(0, liked); // Priority placement
+    _lastMatch = liked;
+    _deck.removeAt(0);
+    _dragDx = 0.0;
+    _dragDy = 0.0;
+    notifyListeners();
+  }
+
+  void dismissMatchOverlay() {
+    _showMatchOverlay = false;
+    notifyListeners();
+  }
+
+  /// Reload the deck (for demo reset).
+  void reloadDeck() {
+    _deck.addAll(List.from(mockSwipeProfiles));
+    _matches.clear();
+    _passed.clear();
+    _showMatchOverlay = false;
+    notifyListeners();
+  }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../utils/design_colors.dart';
 import '../../models/startup_project.dart';
-import '../../services/firestore_service.dart';
+import 'project_details_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -11,198 +10,350 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
-  final _firestore = FirestoreService();
-  List<StartupProject>? _projects;
-  String _filter = 'All';
+  String _selectedFilter = 'All';
+  String _searchQuery = '';
+  final _searchController = TextEditingController();
 
-  static const _categories = ['All', 'Tech', 'Design', 'Health', 'Fintech', 'Social'];
+  final List<String> _filters = ['All', 'Remote', 'On-site', 'AI', 'FinTech'];
 
   @override
-  void initState() {
-    super.initState();
-    _load();
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
-  void _load() {
-    final all = _firestore.getProjects();
-    setState(() => _projects = all);
+  List<StartupProject> get _filteredProjects {
+    return mockProjects.where((project) {
+      // 1. Tag/Filter match
+      bool matchesFilter = true;
+      if (_selectedFilter != 'All') {
+        if (_selectedFilter == 'Remote' || _selectedFilter == 'On-site') {
+          matchesFilter = project.location == _selectedFilter;
+        } else {
+          matchesFilter = project.domain == _selectedFilter || project.tags.contains(_selectedFilter);
+        }
+      }
+
+      // 2. Query search match
+      bool matchesQuery = true;
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        matchesQuery = project.name.toLowerCase().contains(query) ||
+            project.snippet.toLowerCase().contains(query) ||
+            project.domain.toLowerCase().contains(query);
+      }
+
+      return matchesFilter && matchesQuery;
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DesignColors.background,
+      backgroundColor: const Color(0xFFF8F9FC),
       appBar: AppBar(
-        backgroundColor: DesignColors.background,
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [DesignColors.primary, DesignColors.secondary],
-                ),
-                borderRadius: BorderRadius.circular(9),
-              ),
-              child: const Icon(Icons.rocket_launch, color: Colors.white, size: 18),
-            ),
-            const SizedBox(width: 8),
-            const Text('Explore', style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w700, color: DesignColors.textPrimary,
-            )),
-          ],
+        scrolledUnderElevation: 0,
+        title: const Text(
+          'Explore Projects',
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF0F172A),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: const Color(0xFFE2E8F0),
+            height: 1.0,
+          ),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
-            child: Text('Find startup projects to join', style: TextStyle(
-              fontSize: 13, color: DesignColors.textSecondary,
-            )),
-          ),
-          SizedBox(
-            height: 44,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: _categories.map((c) {
-                final selected = _filter == c;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => setState(() => _filter = c),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Search Bar Container
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              child: Row(
+                children: [
+                  Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      height: 48,
                       decoration: BoxDecoration(
-                        color: selected ? DesignColors.primary : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
+                        color: const Color(0xFFF8F9FC),
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: selected ? DesignColors.primary : DesignColors.border,
+                          color: const Color(0xFFE2E8F0),
                         ),
                       ),
-                      child: Text(c, style: TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w500,
-                        color: selected ? Colors.white : DesignColors.textSecondary,
-                      )),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (val) {
+                          setState(() {
+                            _searchQuery = val;
+                          });
+                        },
+                        style: const TextStyle(fontSize: 14, color: Color(0xFF0F172A)),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: Color(0xFF777587),
+                            size: 20,
+                          ),
+                          hintText: 'Search founders or startups...',
+                          hintStyle: const TextStyle(color: Color(0xFF777587), fontSize: 14),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, size: 16, color: Color(0xFF777587)),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() {
+                                      _searchQuery = '';
+                                    });
+                                  },
+                                )
+                              : null,
+                        ),
+                      ),
                     ),
                   ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: _projects == null
-                ? const Center(child: CircularProgressIndicator())
-                : _projects!.isEmpty
-                    ? const Center(child: Text('No projects found'))
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: _projects!.length,
-                        itemBuilder: (_, i) => _ProjectCard(project: _projects![i]),
+                  const SizedBox(width: 12),
+                  // Filter Settings Icon Button
+                  Container(
+                    height: 48,
+                    width: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFE2E8F0),
                       ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProjectCard extends StatelessWidget {
-  final StartupProject project;
-  const _ProjectCard({required this.project});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
-          blurRadius: 10, offset: const Offset(0, 2),
-        )],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 48, height: 48,
-                decoration: BoxDecoration(
-                  color: DesignColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.group, color: DesignColors.primary, size: 24),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.tune,
+                        color: Color(0xFF0052FF), // Electric Blue
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        // Open advanced filter settings dialog
+                      },
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(project.title, style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600, color: DesignColors.textPrimary,
-                    )),
-                    const SizedBox(height: 2),
-                    Text(project.stage, style: TextStyle(
-                      fontSize: 12, color: DesignColors.stageColors[project.stage] ?? DesignColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    )),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: DesignColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text('${project.rolesNeeded.length} open', style: const TextStyle(
-                  fontSize: 11, fontWeight: FontWeight.w600, color: DesignColors.primary,
-                )),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(project.description, style: TextStyle(
-            fontSize: 13, color: DesignColors.textSecondary.withValues(alpha: 0.8), height: 1.4,
-          ), maxLines: 2, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 6, runSpacing: 6,
-            children: project.rolesNeeded.map((r) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: DesignColors.roleColors[r]?.withValues(alpha: 0.1) ?? DesignColors.lightGray,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(r, style: TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w500,
-                color: DesignColors.roleColors[r] ?? DesignColors.textSecondary,
-              )),
-            )).toList(),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity, height: 40,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: DesignColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                elevation: 0,
-              ),
-              child: const Text('Apply', style: TextStyle(fontWeight: FontWeight.w600)),
             ),
-          ),
-        ],
+            // Horizontally scrollable list of filter chips
+            Container(
+              height: 52,
+              color: Colors.white,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                itemCount: _filters.length,
+                itemBuilder: (context, index) {
+                  final filter = _filters[index];
+                  final isSelected = filter == _selectedFilter;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: ChoiceChip(
+                      label: Text(filter),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedFilter = filter;
+                        });
+                      },
+                      selectedColor: const Color(0xFF0052FF), // Electric Blue
+                      backgroundColor: const Color(0xFFF8F9FC),
+                      labelStyle: TextStyle(
+                        fontFamily: 'Geist',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: isSelected ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      side: BorderSide(
+                        color: isSelected ? const Color(0xFF0052FF) : const Color(0xFFE2E8F0),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      showCheckmark: false,
+                    ),
+                  );
+                },
+              ),
+            ),
+            const Divider(
+              height: 1,
+              color: Color(0xFFE2E8F0),
+            ),
+            // Vertical list of modern cards
+            Expanded(
+              child: _filteredProjects.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off_outlined,
+                            size: 48,
+                            color: const Color(0xFF777587).withValues(alpha: 0.5),
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'No projects match your criteria',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(20.0),
+                      itemCount: _filteredProjects.length,
+                      itemBuilder: (context, index) {
+                        final project = _filteredProjects[index];
+
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProjectDetailsScreen(project: project),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            elevation: 0,
+                            margin: const EdgeInsets.only(bottom: 20.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              side: const BorderSide(
+                                color: Color(0xFFE2E8F0), // clean thin card border
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Fixed-height placeholder image zone
+                                Container(
+                                  height: 140,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(16),
+                                      topRight: Radius.circular(16),
+                                    ),
+                                    color: const Color(0xFFEAEDFF),
+                                    image: DecorationImage(
+                                      image: NetworkImage(project.imageUrl),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Title in bold Slate-900
+                                      Text(
+                                        project.name,
+                                        style: const TextStyle(
+                                          fontFamily: 'Plus Jakarta Sans',
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          color: Color(0xFF0F172A), // Slate-900
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      // Snippet
+                                      Text(
+                                        project.snippet,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xFF464555),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      // Tags & Apply -> button row
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          // Tags
+                                          Wrap(
+                                            spacing: 6,
+                                            children: project.tags.take(2).map((tag) {
+                                              return Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFFAF8FF),
+                                                  borderRadius: BorderRadius.circular(6),
+                                                  border: Border.all(
+                                                    color: const Color(0xFFE2E8F0),
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  tag,
+                                                  style: const TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Color(0xFF464555),
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
+                                          // Apply Button
+                                          const Row(
+                                            children: [
+                                              Text(
+                                                'Apply',
+                                                style: TextStyle(
+                                                  fontFamily: 'Plus Jakarta Sans',
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xFF0052FF), // Electric Blue
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              SizedBox(width: 4),
+                                              Icon(
+                                                Icons.arrow_forward_rounded,
+                                                color: Color(0xFF0052FF),
+                                                size: 16,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

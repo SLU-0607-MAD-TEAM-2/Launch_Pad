@@ -1,5 +1,5 @@
 name: launchpad_flutter_app
-description: "LaunchPad — a mobile matching platform connecting founders, developers, and designers to build tech and media projects together."
+description: "LaunchPad – a mobile matching platform connecting founders, developers, and designers."
 publish_to: 'none'
 version: 0.1.0
 
@@ -15,7 +15,7 @@ dependencies:
   firebase_auth: ^4.17.4
   cloud_firestore: ^4.15.4
   firebase_storage: ^11.6.6
-  flutter_card_swiper: ^7.0.1
+  flutter_card_swiper: ^6.0.0
   cached_network_image: ^3.3.1
   url_launcher: ^6.2.4
   intl: ^0.19.0
@@ -28,3 +28,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/

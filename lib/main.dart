@@ -1,28 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'providers/auth_provider.dart';
-import 'providers/nav_provider.dart';
-import 'providers/discovery_provider.dart';
-import 'providers/matches_provider.dart';
-import 'providers/chat_provider.dart';
-import 'theme/theme.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/auth/profile_setup_screen.dart';
-import 'screens/app_shell.dart';
+import 'screens/auth/splash_screen.dart';
+import 'screens/profile/edit_profile_screen.dart';
+import 'screens/home/main_shell.dart';
+import 'utils/app_theme.dart';
 
 void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => NavProvider()),
-        ChangeNotifierProvider(create: (_) => DiscoveryProvider()),
-        ChangeNotifierProvider(create: (_) => MatchesProvider()),
-        ChangeNotifierProvider(create: (_) => ChatProvider()),
-      ],
-      child: const LaunchPadApp(),
-    ),
-  );
+  runApp(const LaunchPadApp());
 }
 
 class LaunchPadApp extends StatelessWidget {
@@ -31,25 +15,63 @@ class LaunchPadApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Launch Pad',
+      title: 'LaunchPad',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const AuthGate(),
-    );
-  }
-}
+      initialRoute: '/',
+      onGenerateRoute: (settings) {
+        Widget builder;
+        switch (settings.name) {
+          case '/':
+            builder = const SplashScreen();
+            break;
+          case '/login':
+            builder = const LoginScreen();
+            break;
+          case '/home':
+            builder = const MainShell();
+            break;
+          case '/edit_profile':
+            builder = EditProfileScreen(
+              initialName: 'John Doe',
+              initialLocation: 'San Francisco, CA',
+              initialBio: 'Passionate UI/UX designer building beautiful developer tooling interfaces.',
+              initialRole: 'UI/UX Designer',
+              initialSkills: 'Dart, Flutter',
+              initialGithub: 'https://github.com/johndoe',
+              initialLinkedin: 'https://linkedin.com/in/johndoe',
+              onSave: (name, location, bio, role, skills, github, linkedin) {},
+            );
+            break;
+          default:
+            builder = const SplashScreen();
+        }
 
-class AuthGate extends StatelessWidget {
-  const AuthGate({super.key});
+        // Soft slide and fade navigation transition
+        return PageRouteBuilder(
+          settings: settings,
+          pageBuilder: (context, animation, secondaryAnimation) => builder,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            final slideTween = Tween<Offset>(
+              begin: const Offset(0.04, 0.0),
+              end: Offset.zero,
+            ).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              ),
+            );
 
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, auth, _) {
-        if (!auth.isLoggedIn) return const LoginScreen();
-        final hasProfile = auth.currentUser?.headline != null;
-        if (!hasProfile) return const ProfileSetupScreen();
-        return const AppShell();
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: slideTween,
+                child: child,
+              ),
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 320),
+        );
       },
     );
   }

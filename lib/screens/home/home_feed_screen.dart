@@ -1,89 +1,79 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../utils/design_colors.dart';
-import '../../providers/swipe_provider.dart';
+import '../explore/explore_screen.dart';
 import '../messages/messages_list_screen.dart';
 import '../profile/profile_screen.dart';
-import 'swipe_discovery_screen.dart';
+import '../settings/settings_screen.dart';
 
+/// HomeFeedScreen is an all-in-one home hub widget that provides a
+/// secondary tab bar between the four main content areas.
+/// This is the body embedded in the main app's Home tab when it
+/// needs to be used as a content aggregator.
 class HomeFeedScreen extends StatefulWidget {
-  final SwipeProvider swipeProvider;
-
-  const HomeFeedScreen({super.key, required this.swipeProvider});
+  const HomeFeedScreen({super.key});
 
   @override
   State<HomeFeedScreen> createState() => _HomeFeedScreenState();
 }
 
-class _HomeFeedScreenState extends State<HomeFeedScreen> {
-  int _currentIndex = 0;
+class _HomeFeedScreenState extends State<HomeFeedScreen> with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
 
-  static const _navIcons = [
-    Icons.explore_outlined,
-    Icons.forum_outlined,
-    Icons.person_outline,
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+  }
 
-  static const _navLabels = ['Discover', 'Messages', 'Profile'];
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: DesignColors.background,
-      body: ChangeNotifierProvider<SwipeProvider>.value(
-        value: widget.swipeProvider,
-        child: IndexedStack(
-          index: _currentIndex,
-          children: [
-            const SwipeDiscoveryScreen(),
-            const MessagesListScreen(),
-            const ProfileScreen(),
+      backgroundColor: const Color(0xFFF8F9FC),
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: const Text(
+          'LaunchPad',
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF0052FF),
+          ),
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: const Color(0xFF0052FF),
+          unselectedLabelColor: const Color(0xFF94A3B8),
+          indicatorColor: const Color(0xFF0052FF),
+          labelStyle: const TextStyle(
+            fontFamily: 'Geist',
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
+          tabs: const [
+            Tab(text: 'Explore'),
+            Tab(text: 'Messages'),
+            Tab(text: 'Profile'),
+            Tab(text: 'Settings'),
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: DesignColors.border)),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(3, (i) {
-                final isSelected = _currentIndex == i;
-                return GestureDetector(
-                  onTap: () => setState(() => _currentIndex = i),
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected ? DesignColors.primary.withValues(alpha: 0.1) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _navIcons[i],
-                          color: isSelected ? DesignColors.primary : DesignColors.textSecondary,
-                          size: 22,
-                        ),
-                        if (isSelected) ...[
-                          const SizedBox(width: 6),
-                          Text(_navLabels[i], style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600, color: DesignColors.primary,
-                          )),
-                        ],
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          ExploreScreen(),
+          MessagesListScreen(),
+          ProfileScreen(),
+          SettingsScreen(),
+        ],
       ),
     );
   }
