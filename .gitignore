@@ -58,3 +58,6 @@ stitch_assets/
 
 # macOS
 .DS_Store
+
+# MiMo
+.mimocode/
