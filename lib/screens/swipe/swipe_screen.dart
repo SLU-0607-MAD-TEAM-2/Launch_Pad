@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:provider/provider.dart';
 import '../../models/user_profile.dart';
+import '../../providers/discovery_provider.dart';
 import '../messages/chat_screen.dart';
 import '../home/main_shell.dart';
 import '../../widgets/loading_widget.dart';
@@ -14,7 +16,7 @@ class SwipeScreen extends StatefulWidget {
   State<SwipeScreen> createState() => _SwipeScreenState();
 }
 
-class _SwipeScreenState extends State<SwipeScreen> {
+class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin {
   final CardSwiperController _controller = CardSwiperController();
 
   late List<UserProfile> _allProfiles;
@@ -23,6 +25,16 @@ class _SwipeScreenState extends State<SwipeScreen> {
   bool _showMatchOverlay = false;
   UserProfile? _lastMatch;
   bool _isLoading = true;
+
+  // Match overlay animations
+  late AnimationController _matchFadeController;
+  late Animation<double> _matchFadeAnimation;
+  late AnimationController _heartBounceController;
+  late Animation<double> _heartScaleAnimation;
+  late AnimationController _slideUpController;
+  late Animation<Offset> _slideUpAnimation;
+  late AnimationController _avatarPopController;
+  late Animation<double> _avatarScaleAnimation;
 
   // Filter state
   final TextEditingController _searchController = TextEditingController();
@@ -36,8 +48,63 @@ class _SwipeScreenState extends State<SwipeScreen> {
   @override
   void initState() {
     super.initState();
-    _allProfiles = List.from(mockSwipeProfiles);
-    _applyFilters();
+
+    // Match overlay animations
+    _matchFadeController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _matchFadeAnimation = CurvedAnimation(
+      parent: _matchFadeController,
+      curve: Curves.easeIn,
+    );
+
+    _heartBounceController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _heartScaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.3), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 1.3, end: 0.9), weight: 20),
+      TweenSequenceItem(tween: Tween(begin: 0.9, end: 1.0), weight: 20),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.1), weight: 20),
+    ]).animate(CurvedAnimation(
+      parent: _heartBounceController,
+      curve: Curves.easeOut,
+    ));
+
+    _slideUpController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _slideUpAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideUpController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _avatarPopController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _avatarScaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.2), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 50),
+    ]).animate(CurvedAnimation(
+      parent: _avatarPopController,
+      curve: Curves.easeOut,
+    ));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<DiscoveryProvider>(context, listen: false);
+      provider.loadProfiles();
+      setState(() {
+        _allProfiles = List.from(provider.profiles);
+      });
+      _applyFilters();
+    });
     _simulateLoading();
   }
 
@@ -55,17 +122,21 @@ class _SwipeScreenState extends State<SwipeScreen> {
   void dispose() {
     _searchController.dispose();
     _controller.dispose();
+    _matchFadeController.dispose();
+    _heartBounceController.dispose();
+    _slideUpController.dispose();
+    _avatarPopController.dispose();
     super.dispose();
   }
 
   void _applyFilters() {
     setState(() {
       _deck = _allProfiles.where((p) {
-        final matchesFilter = _selectedFilter == 'All' || p.skills.contains(_selectedFilter) || p.role.contains(_selectedFilter);
+        final matchesFilter = _selectedFilter == 'All' || p.skills.contains(_selectedFilter) || p.role.name.contains(_selectedFilter);
         final matchesSearch = _searchQuery.isEmpty || 
                               p.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
                               p.skills.any((s) => s.toLowerCase().contains(_searchQuery.toLowerCase())) ||
-                              p.role.toLowerCase().contains(_searchQuery.toLowerCase());
+                              p.role.name.toLowerCase().contains(_searchQuery.toLowerCase());
         return matchesFilter && matchesSearch;
       }).toList();
     });
@@ -85,6 +156,11 @@ class _SwipeScreenState extends State<SwipeScreen> {
         _lastMatch = profile;
         _showMatchOverlay = true;
       });
+      // Trigger match animations
+      _matchFadeController.forward(from: 0.0);
+      _heartBounceController.forward(from: 0.0);
+      _slideUpController.forward(from: 0.0);
+      _avatarPopController.forward(from: 0.0);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Connection request sent to ${profile.name}'),
@@ -266,7 +342,7 @@ class _SwipeScreenState extends State<SwipeScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    profile.role,
+                    profile.role.name,
                     style: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 15,
@@ -377,104 +453,128 @@ class _SwipeScreenState extends State<SwipeScreen> {
 
   Widget _buildMatchOverlay(UserProfile match) {
     return Positioned.fill(
-      child: Container(
-        color: Colors.black.withValues(alpha: 0.92),
-        child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.favorite, color: Colors.redAccent, size: 72),
-              const SizedBox(height: 20),
-              const Text(
-                "It's a Match!",
-                style: TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 38,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+      child: FadeTransition(
+        opacity: _matchFadeAnimation,
+        child: Container(
+          color: Colors.black.withValues(alpha: 0.92),
+          child: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Animated heart icon
+                ScaleTransition(
+                  scale: _heartScaleAnimation,
+                  child: const Icon(Icons.favorite, color: Colors.redAccent, size: 72),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Text(
-                  'You and ${match.name} are ready to build together.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 17,
-                    color: Colors.white70,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircleAvatar(
-                    radius: 46,
-                    backgroundImage: NetworkImage(
-                      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
-                    ),
-                    backgroundColor: Colors.white,
-                  ),
-                  Align(
-                    widthFactor: 0.6,
-                    child: CircleAvatar(
-                      radius: 46,
-                      backgroundImage: NetworkImage(match.avatarUrl),
-                      backgroundColor: Colors.white,
+                const SizedBox(height: 20),
+                // Animated "It's a Match!" text
+                SlideTransition(
+                  position: _slideUpAnimation,
+                  child: const Text(
+                    "It's a Match!",
+                    style: TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 38,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 48),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0052FF),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  elevation: 0,
                 ),
-                onPressed: () {
-                  setState(() => _showMatchOverlay = false);
-                  final shell = context.findAncestorStateOfType<MainShellState>();
-                  if (shell != null) {
-                    shell.setSelectedIndex(1);
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatScreen(
-                          name: match.name,
-                          avatar: match.avatarUrl,
+                const SizedBox(height: 10),
+                SlideTransition(
+                  position: _slideUpAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Text(
+                      'You and ${match.name} are ready to build together.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 17,
+                        color: Colors.white70,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                // Animated avatars
+                ScaleTransition(
+                  scale: _avatarScaleAnimation,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 46,
+                        backgroundImage: NetworkImage(
+                          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+                        ),
+                        backgroundColor: Colors.white,
+                      ),
+                      Align(
+                        widthFactor: 0.6,
+                        child: CircleAvatar(
+                          radius: 46,
+                          backgroundImage: NetworkImage(match.avatarUrl),
+                          backgroundColor: Colors.white,
                         ),
                       ),
-                    );
-                  }
-                },
-                child: const Text(
-                  'Start Chatting',
-                  style: TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 14),
-              TextButton(
-                onPressed: () => setState(() => _showMatchOverlay = false),
-                child: const Text(
-                  'Keep Swiping',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                const SizedBox(height: 48),
+                SlideTransition(
+                  position: _slideUpAnimation,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0052FF),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      setState(() => _showMatchOverlay = false);
+                      final shell = context.findAncestorStateOfType<MainShellState>();
+                      if (shell != null) {
+                        shell.setSelectedIndex(1);
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatScreen(
+                              name: match.name,
+                              avatar: match.avatarUrl,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text(
+                      'Start Chatting',
+                      style: TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 14),
+                SlideTransition(
+                  position: _slideUpAnimation,
+                  child: TextButton(
+                    onPressed: () => setState(() => _showMatchOverlay = false),
+                    child: const Text(
+                      'Keep Swiping',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

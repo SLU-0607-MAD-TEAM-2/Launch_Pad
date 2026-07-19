@@ -85,7 +85,7 @@ Wireframes for the Home, Explore, Messages, and Profile screens were designed by
 
 - **Week 1:** Proposal, wireframes, project setup ✅ (this repo)
 - **Week 2:** Build static UI screens (Home, Explore, Messages, Profile, and Login once designed)
-- **Week 3:** Connected screens to JSON data, added feedback form with validation, added error handling ✅
+- **Week 3:** Connected screens to JSON data, added feedback form with validation, added error handling, implemented animations across multiple screens ✅
 - **Week 4+:** Wire up Firebase (auth, applications, real-time chat), push notifications
 
 ## Week 3 Changes
@@ -94,6 +94,7 @@ Wireframes for the Home, Explore, Messages, and Profile screens were designed by
 - Added `MockApiService` that loads all data from JSON files in `assets/data/` (profiles, projects, matches, messages, applications)
 - Swipe/Discovery screens now load user profiles from `profiles.json`
 - Explore screen now loads projects from `projects.json` via `DiscoveryProvider`
+- All screens fetch real data at startup instead of using hardcoded values
 
 ### New Screens
 - **Feedback Screen** (`lib/screens/feedback/feedback_screen.dart`) — form with name, email, category dropdown, star rating, and comments
@@ -101,11 +102,22 @@ Wireframes for the Home, Explore, Messages, and Profile screens were designed by
 
 ### Forms & Validation
 - **Login form** — email (required + regex format) and password (required + min 6 chars)
-- **Edit Profile form** — name, role, location, bio (all required)
-- **Feedback form** — name (required), email (required + valid format), category (required), rating (required), comments (required + min 10 chars)
+- **Edit Profile form** (`lib/screens/profile/edit_profile_screen.dart`) — fully functional form with validation on name, role, location, and bio (all required); updates saved instantly
+- **Feedback form** — name (required), email (required + valid format), category (required), rating (required + 1-5 stars), comments (required + min 10 chars)
 
 ### Error Handling
 - `MockApiService.loadAll()` wrapped in try/catch with `isLoaded`, `hasError`, and `errorMessage` state
+- App gracefully handles missing or malformed JSON data
+- Forms show inline validation errors on submit
+
+### Animations
+- **Splash Screen** — 3-phase sequence: logo scale/fade (1s), hover oscillation (1.5s repeating), lift-off transition (500ms)
+- **Login Screen** — 4-phase staggered entrance: logo zoom, welcome text slide-in, subtitle fade, form card slide-up (2s total)
+- **Swipe Screen** — Match overlay with 4 parallel animations: backdrop fade, heart bounce (TweenSequence), slide-up text, avatar pop
+- **ScaleTap widget** — reusable press-feedback scale animation (96% shrink on tap, 100ms)
+- **LaunchPadLoading** — custom loading indicator with orbiting arc (CustomPainter) and pulsing rocket dot
+- **Page transitions** — global fade + slide (320ms) on all route navigation via PageRouteBuilder
+- **Micro-animations** — AnimatedContainer for smooth layout changes, AnimatedSwitcher for content crossfades
 
 ### Bug Fixes
 - Fixed `ExploreScreen` referencing undefined `mockProjects` variable — now uses `DiscoveryProvider.projects`

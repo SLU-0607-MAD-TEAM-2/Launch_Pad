@@ -42,5 +42,49 @@
     "rolesNeeded": ["developer", "creative"],
     "lookingFor": ["Mobile developer", "Content creator"],
     "createdAt": "2025-12-10T10:00:00.000Z"
+  },
+  {
+    "id": "proj5",
+    "founderId": "u9",
+    "title": "PayStream",
+    "description": "Real-time payment processing platform for small and medium businesses.",
+    "industry": "FinTech",
+    "stage": "mvp",
+    "rolesNeeded": ["developer", "designer"],
+    "lookingFor": ["Backend developer", "Product designer"],
+    "createdAt": "2025-11-01T10:00:00.000Z"
+  },
+  {
+    "id": "proj6",
+    "founderId": "u9",
+    "title": "CloudNest",
+    "description": "Multi-cloud management dashboard for DevOps teams.",
+    "industry": "SaaS",
+    "stage": "prototype",
+    "rolesNeeded": ["developer"],
+    "lookingFor": ["Full-stack developer", "DevOps engineer"],
+    "createdAt": "2025-10-05T10:00:00.000Z"
+  },
+  {
+    "id": "proj7",
+    "founderId": "u10",
+    "title": "ArtiChain",
+    "description": "NFT marketplace for digital artists with royalty tracking.",
+    "industry": "Web3",
+    "stage": "idea",
+    "rolesNeeded": ["developer", "designer"],
+    "lookingFor": ["Blockchain developer", "UI designer"],
+    "createdAt": "2025-12-05T10:00:00.000Z"
+  },
+  {
+    "id": "proj8",
+    "founderId": "u8",
+    "title": "MedConnect",
+    "description": "Telehealth platform connecting rural patients with specialists.",
+    "industry": "HealthTech",
+    "stage": "mvp",
+    "rolesNeeded": ["developer", "designer"],
+    "lookingFor": ["Flutter developer", "Healthcare UX designer"],
+    "createdAt": "2025-09-20T10:00:00.000Z"
   }
 ]

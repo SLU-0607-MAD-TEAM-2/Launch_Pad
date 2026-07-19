@@ -111,7 +111,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+          padding: const EdgeInsets.fromLTRB(20.0, 24.0, 20.0, 40.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -179,10 +179,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     color: Color(0xFF0F172A),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   value: _selectedCategory,
-                  decoration: _buildDecoration('Select a category', ''),
+                  decoration: _buildDecoration('', 'Select a category'),
                   items: _categories.map((cat) {
                     return DropdownMenuItem(value: cat, child: Text(cat));
                   }).toList(),
@@ -206,7 +206,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     color: Color(0xFF0F172A),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Row(
                   children: List.generate(5, (index) {
                     return GestureDetector(

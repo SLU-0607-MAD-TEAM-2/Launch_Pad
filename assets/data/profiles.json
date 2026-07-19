@@ -10,7 +10,7 @@
     "experienceLevel": "intermediate",
     "interests": ["AI/ML", "Mobile", "Open Source"],
     "location": "New York, NY",
-    "avatarUrl": null,
+    "avatarUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80",
     "isLookingForTeam": true
   },
   {
@@ -24,7 +24,7 @@
     "experienceLevel": "senior",
     "interests": ["Marketplaces", "SaaS", "Fintech"],
     "location": "Austin, TX",
-    "avatarUrl": null,
+    "avatarUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
     "isLookingForTeam": true
   },
   {
@@ -38,7 +38,7 @@
     "experienceLevel": "senior",
     "interests": ["SaaS", "Developer Tools", "Design Systems"],
     "location": "Remote",
-    "avatarUrl": null,
+    "avatarUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80",
     "isLookingForTeam": true
   },
   {
@@ -52,7 +52,7 @@
     "experienceLevel": "intermediate",
     "interests": ["Content Creation", "Animation", "Gaming"],
     "location": "Los Angeles, CA",
-    "avatarUrl": null,
+    "avatarUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
     "isLookingForTeam": true
   },
   {
@@ -66,7 +66,7 @@
     "experienceLevel": "senior",
     "interests": ["Developer Tools", "DevOps", "Infrastructure"],
     "location": "Seattle, WA",
-    "avatarUrl": null,
+    "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
     "isLookingForTeam": true
   },
   {
@@ -80,7 +80,63 @@
     "experienceLevel": "lead",
     "interests": ["Climate Tech", "Hardware", "Sustainability"],
     "location": "Boston, MA",
-    "avatarUrl": null,
+    "avatarUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80",
+    "isLookingForTeam": true
+  },
+  {
+    "id": "p7",
+    "name": "Lena Torres",
+    "email": "lena@example.com",
+    "role": "designer",
+    "headline": "Mobile-first design specialist",
+    "bio": "Passionate about creating intuitive mobile experiences. Figma power user with Swift knowledge.",
+    "skills": ["Figma", "UI/UX", "Swift", "Design Systems", "Prototyping"],
+    "experienceLevel": "intermediate",
+    "interests": ["Mobile", "HealthTech", "SaaS"],
+    "location": "Miami, FL",
+    "avatarUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
+    "isLookingForTeam": true
+  },
+  {
+    "id": "p8",
+    "name": "Ryan O'Connor",
+    "email": "ryan@example.com",
+    "role": "developer",
+    "headline": "HealthTech mobile developer",
+    "bio": "Building apps that save lives. Flutter + Firebase for healthcare solutions.",
+    "skills": ["Flutter", "Swift", "HealthTech", "Firebase", "Dart"],
+    "experienceLevel": "senior",
+    "interests": ["HealthTech", "Mobile", "AI/ML"],
+    "location": "Chicago, IL",
+    "avatarUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80",
+    "isLookingForTeam": true
+  },
+  {
+    "id": "p9",
+    "name": "Priya Sharma",
+    "email": "priya@example.com",
+    "role": "founder",
+    "headline": "FinTech entrepreneur",
+    "bio": "Building the future of digital payments. Previously at Stripe and Square.",
+    "skills": ["Product Strategy", "FinTech", "SaaS", "Fundraising", "Growth"],
+    "experienceLevel": "lead",
+    "interests": ["FinTech", "SaaS", "Payments"],
+    "location": "San Francisco, CA",
+    "avatarUrl": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=300&q=80",
+    "isLookingForTeam": true
+  },
+  {
+    "id": "p10",
+    "name": "Kai Nakamura",
+    "email": "kai@example.com",
+    "role": "developer",
+    "headline": "Web3 & blockchain developer",
+    "bio": "Solidity expert building decentralized applications. Open source contributor.",
+    "skills": ["Web3", "Solidity", "React", "FinTech", "TypeScript"],
+    "experienceLevel": "intermediate",
+    "interests": ["Web3", "FinTech", "DeFi"],
+    "location": "Tokyo, Japan",
+    "avatarUrl": "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=300&q=80",
     "isLookingForTeam": true
   }
 ]

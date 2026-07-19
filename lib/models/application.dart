@@ -9,7 +9,7 @@ class Application {
   final DateTime appliedAt;
   final ApplicationStatus status;
 
-  const Application({
+  Application({
     required this.id,
     required this.projectId,
     required this.projectName,
