@@ -126,59 +126,13 @@ Wireframes for the Home, Explore, Messages, and Profile screens were designed by
 
 ### Screenshots
 
+| Login Screen | Swipe Match Screen |
+|---|---|
+| ![Login Screen](screenshots/login.png) | ![Swipe Screen](screenshots/swipe.png) |
 
-|
- Login Screen 
-|
- Swipe Match Screen 
-|
-|
----
-|
----
-|
-|
-!
-[
-Login Screen
-](
-assets/images/week3_screenshots/login.png
-)
-|
-!
-[
-Swipe Screen
-](
-assets/images/week3_screenshots/swipe.png
-)
-|
-
-
-|
- Matches Screen 
-|
- Profile & Edit Profile 
-|
-|
----
-|
----
-|
-|
-!
-[
-Matches Screen
-](
-assets/images/week3_screenshots/matches.png
-)
-|
-!
-[
-Profile Screen
-](
-assets/images/week3_screenshots/profile.png
-)
-|
+| Matches Screen | Profile & Edit Profile |
+|---|---|
+| ![Matches Screen](screenshots/matches.png) | ![Profile Screen](screenshots/profile.png) |
 
 ## Week 3 Changes
 
