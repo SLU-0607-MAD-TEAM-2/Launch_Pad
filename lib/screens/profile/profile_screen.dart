@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'edit_profile_screen.dart';
 import '../../widgets/scale_tap.dart';
+import '../../utils/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,176 +14,185 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   String _name = 'John Doe';
   String _location = 'San Francisco, CA';
-  String _bio = 'Passionate UI/UX designer building beautiful developer tooling interfaces.';
+  String _bio =
+      'Passionate UI/UX designer building beautiful developer tooling interfaces.';
   String _role = 'UI/UX Designer';
   String _github = 'https://github.com/johndoe';
   String _linkedin = 'https://linkedin.com/in/johndoe';
 
-  final List<String> _skillsList = [
-    'Dart',
-    'Flutter',
-    'Figma',
-    'Git',
-  ];
-
+  final List<String> _skillsList = ['Dart', 'Flutter', 'Figma', 'Git'];
   final Set<String> _selectedSkills = {'Dart', 'Flutter'};
 
-  // Calculate completion percentage:
-  // Name (20%), Location (20%), Bio (20%), Skills selected (20%), Links (20%)
   double _getCompletionPercentage() {
-    double completion = 0.0;
-    if (_name.isNotEmpty && _name != 'John Doe') {
-      completion += 0.2;
-    } else if (_name == 'John Doe') {
-      completion += 0.2; // default is filled
-    }
-
-    if (_location.isNotEmpty) completion += 0.2;
-    if (_bio.isNotEmpty) completion += 0.2;
-    if (_selectedSkills.isNotEmpty) completion += 0.2;
-    
-    // Default GitHub/LinkedIn links considered configured (20%)
-    completion += 0.2;
-    
-    return completion;
+    double c = 0.0;
+    if (_name.isNotEmpty) c += 0.2;
+    if (_location.isNotEmpty) c += 0.2;
+    if (_bio.isNotEmpty) c += 0.2;
+    if (_selectedSkills.isNotEmpty) c += 0.2;
+    c += 0.2; // links always configured
+    return c;
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final completionVal = _getCompletionPercentage();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
+      backgroundColor: AppColor.screenBgLight,
       appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
+        backgroundColor: AppColor.screenBgLight,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF0F172A),
-          ),
-        ),
+        title: Text('Profile', style: AppTypography.titleMedium),
+        centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
-            height: 1.0,
+            color: AppColor.borderHairline.withValues(alpha: 0.4),
+            height: 1,
           ),
         ),
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           children: [
             const SizedBox(height: 20),
-            // Central Profile Avatar circle
+
+            // ── Avatar ──────────────────────────────────────────
             Center(
-              child: Container(
-                width: 110,
-                height: 110,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  border: Border.all(
-                    color: const Color(0xFF0052FF), // Electric Blue
-                    width: 3,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    )
-                  ],
-                  image: const DecorationImage(
-                    image: NetworkImage(
-                      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Name label
-            Center(
-              child: Text(
-                _name,
-                style: const TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
-            ),
-            const SizedBox(height: 4),
-            // Location
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: [
-                  const Icon(Icons.location_on, size: 16, color: Color(0xFF64748B)),
-                  const SizedBox(width: 4),
-                  Text(
-                    _location,
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      color: Color(0xFF64748B),
+                  Container(
+                    width: 110,
+                    height: 110,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [AppColor.primaryBlue, AppColor.accentCyan],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColor.primaryBlue.withValues(alpha: 0.25),
+                          blurRadius: 20,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(3),
+                    child: CircleAvatar(
+                      radius: 52,
+                      backgroundColor: AppColor.white,
+                      backgroundImage: const NetworkImage(
+                        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+                      ),
+                    ),
+                  ),
+                  // Camera badge
+                  Positioned(
+                    bottom: 2,
+                    right: 2,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: AppColor.primaryBlue,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColor.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Iconsax.camera,
+                        size: 14,
+                        color: AppColor.white,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
-            // Role Badge
+            const SizedBox(height: 16),
+
+            // ── Name ──────────────────────────────────────────────
+            Center(
+              child: Text(_name, style: AppTypography.displaySmall),
+            ),
+            const SizedBox(height: 6),
+
+            // ── Location ─────────────────────────────────────────
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Iconsax.location, size: 14, color: AppColor.mutedText),
+                  const SizedBox(width: 4),
+                  Text(_location,
+                      style: AppTypography.bodySmall
+                          .copyWith(color: AppColor.mutedText)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // ── Role badge ───────────────────────────────────────
             Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAEDFF),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Text(
-                  _role,
-                  style: const TextStyle(
-                    fontFamily: 'Geist',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    color: Color(0xFF0052FF),
+                  color: AppColor.primaryBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppShapes.pillRadius),
+                  border: Border.all(
+                    color: AppColor.primaryBlue.withValues(alpha: 0.2),
                   ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Iconsax.code, size: 13, color: AppColor.primaryBlue),
+                    const SizedBox(width: 5),
+                    Text(
+                      _role,
+                      style: AppTypography.labelMedium.copyWith(
+                        color: AppColor.primaryBlue,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            // Bio
+
+            // ── Bio ──────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
                 _bio,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 14,
-                  color: Color(0xFF475569),
-                  height: 1.5,
-                ),
+                style: AppTypography.bodySmall
+                    .copyWith(color: AppColor.bodyText, height: 1.6),
               ),
             ),
             const SizedBox(height: 24),
-            
-            // Profile Completion Indicator
+
+            // ── Profile completion card ──────────────────────────
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                color: AppColor.white,
+                borderRadius: BorderRadius.circular(AppShapes.radiusXL),
+                border: Border.all(
+                    color: AppColor.borderHairline.withValues(alpha: 0.5)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColor.headingDark.withValues(alpha: 0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,114 +200,108 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Profile Completion',
-                        style: TextStyle(
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Color(0xFF475569),
-                        ),
+                      Row(
+                        children: [
+                          const Icon(Iconsax.chart_2,
+                              size: 15, color: AppColor.primaryBlue),
+                          const SizedBox(width: 6),
+                          Text('Profile Completion',
+                              style: AppTypography.titleSmall.copyWith(
+                                  color: AppColor.bodyText)),
+                        ],
                       ),
                       Text(
                         '${(completionVal * 100).toInt()}% Complete',
-                        style: const TextStyle(
-                          fontFamily: 'Geist',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Color(0xFF0052FF),
+                        style: AppTypography.labelMedium.copyWith(
+                          color: AppColor.primaryBlue,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: LinearProgressIndicator(
                       value: completionVal,
-                      backgroundColor: const Color(0xFFF1F5F9),
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0052FF)),
-                      minHeight: 8,
+                      backgroundColor: AppColor.borderHairline,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColor.primaryBlue),
+                      minHeight: 7,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
 
-            // Edit Profile Button
+            // ── Edit Profile button ──────────────────────────────
             Center(
               child: ScaleTap(
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Opening profile editor...'),
-                      duration: Duration(milliseconds: 500),
-                    ),
-                  );
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => EditProfileScreen(
-                         initialName: _name,
-                         initialLocation: _location,
-                         initialBio: _bio,
-                         initialRole: _role,
-                         initialSkills: _selectedSkills.join(', '),
-                         initialGithub: _github,
-                         initialLinkedin: _linkedin,
-                         onSave: (name, location, bio, role, skills, github, linkedin) {
-                           setState(() {
-                             _name = name;
-                             _location = location;
-                             _bio = bio;
-                             _role = role;
-                             _github = github;
-                             _linkedin = linkedin;
-                             final parsedSkills = skills
-                                 .split(',')
-                                 .map((s) => s.trim())
-                                 .where((s) => s.isNotEmpty)
-                                 .toList();
-                             _selectedSkills.clear();
-                             for (final s in parsedSkills) {
-                               _selectedSkills.add(s);
-                               if (!_skillsList.contains(s)) {
-                                 _skillsList.add(s);
-                               }
-                             }
-                           });
-                           ScaffoldMessenger.of(context).showSnackBar(
-                             const SnackBar(
-                               content: Text('Profile saved successfully!'),
-                               backgroundColor: Colors.green,
-                               duration: Duration(seconds: 2),
-                             ),
-                           );
-                         },
+                        initialName: _name,
+                        initialLocation: _location,
+                        initialBio: _bio,
+                        initialRole: _role,
+                        initialSkills: _selectedSkills.join(', '),
+                        initialGithub: _github,
+                        initialLinkedin: _linkedin,
+                        onSave: (name, location, bio, role, skills, github,
+                            linkedin) {
+                          setState(() {
+                            _name = name;
+                            _location = location;
+                            _bio = bio;
+                            _role = role;
+                            _github = github;
+                            _linkedin = linkedin;
+                            final parsed = skills
+                                .split(',')
+                                .map((s) => s.trim())
+                                .where((s) => s.isNotEmpty)
+                                .toList();
+                            _selectedSkills.clear();
+                            for (final s in parsed) {
+                              _selectedSkills.add(s);
+                              if (!_skillsList.contains(s)) _skillsList.add(s);
+                            }
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Profile saved successfully!'),
+                              backgroundColor: AppColor.success,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   );
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: const Color(0xFF0052FF)),
-                    borderRadius: BorderRadius.circular(20),
+                    color: AppColor.primaryBlue.withValues(alpha: 0.07),
+                    border: Border.all(
+                        color: AppColor.primaryBlue.withValues(alpha: 0.3)),
+                    borderRadius: BorderRadius.circular(AppShapes.pillRadius),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.edit, size: 16, color: Color(0xFF0052FF)),
-                      SizedBox(width: 8),
+                      const Icon(Iconsax.edit_2,
+                          size: 15, color: AppColor.primaryBlue),
+                      const SizedBox(width: 8),
                       Text(
                         'Edit Profile',
-                        style: TextStyle(
-                          fontFamily: 'Geist',
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0052FF),
-                          fontSize: 14,
+                        style: AppTypography.labelLarge.copyWith(
+                          color: AppColor.primaryBlue,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -305,82 +310,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 28),
-            // Bordered 'GitHub' and 'LinkedIn' rows
-            // GitHub profile link tile
-            ScaleTap(
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Redirecting to GitHub: $_github')),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
-                ),
-                child: const ListTile(
-                  leading: Icon(Icons.code_rounded, color: Color(0xFF0F172A), size: 22),
-                  title: Text(
-                    'GitHub Profile',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F172A),
-                    ),
-                  ),
-                  trailing: Icon(Icons.chevron_right, color: Color(0xFF94A3B8)),
-                ),
+
+            // ── Connect links ────────────────────────────────────
+            _LinkTile(
+              icon: Iconsax.code_1,
+              label: 'GitHub Profile',
+              iconColor: AppColor.headingDark,
+              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Opening: $_github')),
               ),
             ),
-            const SizedBox(height: 12),
-            // LinkedIn profile link tile
-            ScaleTap(
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Redirecting to LinkedIn: $_linkedin')),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
-                ),
-                child: const ListTile(
-                  leading: Icon(Icons.link_rounded, color: Color(0xFF0052FF), size: 22),
-                  title: Text(
-                    'LinkedIn Profile',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF0052FF),
-                    ),
-                  ),
-                  trailing: Icon(Icons.chevron_right, color: Color(0xFF94A3B8)),
-                ),
+            const SizedBox(height: 10),
+            _LinkTile(
+              icon: Iconsax.link_21,
+              label: 'LinkedIn Profile',
+              iconColor: AppColor.primaryBlue,
+              labelColor: AppColor.primaryBlue,
+              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Opening: $_linkedin')),
               ),
             ),
             const SizedBox(height: 32),
-            // 'Technical Arsenal' Section
-            const Text(
-              'Technical Arsenal',
-              style: TextStyle(
-                fontFamily: 'Plus Jakarta Sans',
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0F172A),
-              ),
+
+            // ── Technical Arsenal ────────────────────────────────
+            Row(
+              children: [
+                const Icon(Iconsax.cpu, size: 18, color: AppColor.primaryBlue),
+                const SizedBox(width: 8),
+                Text('Technical Arsenal', style: AppTypography.headingSemiBold),
+              ],
             ),
-            const SizedBox(height: 16),
-            // Wrap layout with custom tags
+            const SizedBox(height: 14),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: _skillsList.map((skill) {
                 final isSelected = _selectedSkills.contains(skill);
-
-                return GestureDetector(
+                return ScaleTap(
                   onTap: () {
                     setState(() {
                       if (isSelected) {
@@ -389,36 +355,278 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _selectedSkills.add(skill);
                       }
                     });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(isSelected ? 'Removed $skill from skills' : 'Added $skill to skills'),
-                        duration: const Duration(milliseconds: 500),
-                      ),
-                    );
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF0052FF) : Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      color: isSelected
+                          ? AppColor.primaryBlue
+                          : AppColor.white,
+                      borderRadius:
+                          BorderRadius.circular(AppShapes.pillRadius),
                       border: Border.all(
-                        color: isSelected ? const Color(0xFF0052FF) : const Color(0xFFE2E8F0),
+                        color: isSelected
+                            ? AppColor.primaryBlue
+                            : AppColor.borderHairline,
                       ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: AppColor.primaryBlue
+                                    .withValues(alpha: 0.25),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              )
+                            ]
+                          : null,
                     ),
                     child: Text(
                       skill,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
+                      style: AppTypography.labelMedium.copyWith(
+                        color: isSelected ? AppColor.white : AppColor.bodyText,
                         fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                        color: isSelected ? Colors.white : const Color(0xFF475569),
                       ),
                     ),
                   ),
                 );
               }).toList(),
             ),
+            const SizedBox(height: 32),
+
+            // ── My Applications ──────────────────────────────────
+            Row(
+              children: [
+                const Icon(Iconsax.document_text,
+                    size: 18, color: AppColor.primaryBlue),
+                const SizedBox(width: 8),
+                Text('My Applications', style: AppTypography.headingSemiBold),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildApplicationCard('HEALTHAI', 'Pending', const Color(0xFFF59E0B)),
+            const SizedBox(height: 8),
+            _buildApplicationCard('FINFLOW', 'Accepted', AppColor.success),
+            const SizedBox(height: 8),
+            _buildApplicationCard(
+                'SOLARIS PROTOCOL', 'Rejected', AppColor.error),
+            const SizedBox(height: 32),
+
+            // ── Saved Profiles ───────────────────────────────────
+            Row(
+              children: [
+                const Icon(Iconsax.bookmark,
+                    size: 18, color: AppColor.primaryBlue),
+                const SizedBox(width: 8),
+                Text('Saved Profiles', style: AppTypography.headingSemiBold),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildSavedProfileCard(
+              'Sarah Chen',
+              'Flutter Developer',
+              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+            ),
+            const SizedBox(height: 8),
+            _buildSavedProfileCard(
+              'Marcus Johnson',
+              'Founder',
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+            ),
+            const SizedBox(height: 8),
+            _buildSavedProfileCard(
+              'Emily Rodriguez',
+              'UI/UX Designer',
+              'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80',
+            ),
+            const SizedBox(height: 24),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApplicationCard(
+      String projectName, String status, Color statusColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColor.white,
+        borderRadius: BorderRadius.circular(AppShapes.radiusXL),
+        border: Border.all(
+            color: AppColor.borderHairline.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.headingDark.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  status == 'Accepted'
+                      ? Iconsax.tick_circle
+                      : status == 'Rejected'
+                          ? Iconsax.close_circle
+                          : Iconsax.clock,
+                  size: 18,
+                  color: statusColor,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(projectName, style: AppTypography.titleSmall),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppShapes.pillRadius),
+            ),
+            child: Text(
+              status,
+              style: AppTypography.caption.copyWith(
+                color: statusColor,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSavedProfileCard(
+      String name, String role, String avatarUrl) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColor.white,
+        borderRadius: BorderRadius.circular(AppShapes.radiusXL),
+        border: Border.all(
+            color: AppColor.borderHairline.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.headingDark.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundImage: NetworkImage(avatarUrl),
+            backgroundColor: AppColor.skillBlueBg,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: AppTypography.titleSmall),
+                const SizedBox(height: 2),
+                Text(role,
+                    style: AppTypography.bodySmall
+                        .copyWith(color: AppColor.mutedText)),
+              ],
+            ),
+          ),
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: AppColor.primaryBlue.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(AppShapes.pillRadius),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Iconsax.bookmark,
+                    size: 12, color: AppColor.primaryBlue),
+                const SizedBox(width: 4),
+                Text(
+                  'Saved',
+                  style: AppTypography.caption.copyWith(
+                    color: AppColor.primaryBlue,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Reusable link tile ──────────────────────────────────────────────────────
+
+class _LinkTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color iconColor;
+  final Color? labelColor;
+  final VoidCallback onTap;
+
+  const _LinkTile({
+    required this.icon,
+    required this.label,
+    required this.iconColor,
+    required this.onTap,
+    this.labelColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = labelColor ?? AppColor.headingDark;
+    return ScaleTap(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColor.white,
+          border: Border.all(
+              color: AppColor.borderHairline.withValues(alpha: 0.5)),
+          borderRadius: BorderRadius.circular(AppShapes.radiusXL),
+          boxShadow: [
+            BoxShadow(
+              color: AppColor.headingDark.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: iconColor),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTypography.titleSmall.copyWith(color: color),
+                ),
+              ),
+              Icon(Iconsax.arrow_right_3,
+                  size: 16, color: AppColor.mutedText),
+            ],
+          ),
         ),
       ),
     );

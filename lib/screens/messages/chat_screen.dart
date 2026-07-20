@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/chat_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   final String name;
   final String avatar;
+  final String? userId;
 
   const ChatScreen({
     super.key,
     required this.name,
-    required this.avatar,
+    this.avatar = '',
+    this.userId,
   });
 
   @override
@@ -21,6 +25,10 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    // Load conversations from ChatProvider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ChatProvider>().loadConversations();
+    });
     // Default initial mock messages
     _messages.addAll([
       {
@@ -58,6 +66,11 @@ class _ChatScreenState extends State<ChatScreen> {
         'time': 'Just Now',
       });
     });
+
+    // Also send via ChatProvider if userId is available
+    if (widget.userId != null) {
+      context.read<ChatProvider>().sendMessage(widget.userId!, text);
+    }
 
     _messageController.clear();
   }

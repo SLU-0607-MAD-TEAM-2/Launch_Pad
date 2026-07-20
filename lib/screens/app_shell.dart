@@ -5,7 +5,7 @@ import '../widgets/launchpad_bottom_nav.dart';
 import 'home/discovery_screen.dart';
 import 'home/matches_screen.dart';
 import 'profile/profile_screen.dart';
-import 'profile/settings_screen.dart';
+import 'settings/settings_screen.dart';
 
 class AppShell extends StatelessWidget {
   const AppShell({super.key});

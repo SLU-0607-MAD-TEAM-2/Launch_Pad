@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/matches_provider.dart';
-import '../../theme/theme.dart';
+import '../../utils/app_theme.dart';
 import '../messages/chat_screen.dart';
 
 class MatchesScreen extends StatefulWidget {
@@ -67,7 +67,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                             trailing: Icon(Icons.arrow_forward_ios, size: 14, color: AppColor.textSecondary),
                             onTap: () => Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => ChatScreen(userId: user.id, userName: user.name)),
+                              MaterialPageRoute(builder: (_) => ChatScreen(name: user.name, avatar: user.avatarUrl, userId: user.id)),
                             ),
                           );
                         },

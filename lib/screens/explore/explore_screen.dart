@@ -252,18 +252,21 @@ class _ExploreScreenState extends State<ExploreScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Fixed-height placeholder image zone
-                                Container(
-                                  height: 140,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(16),
-                                      topRight: Radius.circular(16),
-                                    ),
-                                    color: const Color(0xFFEAEDFF),
-                                    image: DecorationImage(
-                                      image: NetworkImage(project.imageUrl),
-                                      fit: BoxFit.cover,
+                                Hero(
+                                  tag: 'project-${project.id}',
+                                  child: Container(
+                                    height: 140,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(16),
+                                        topRight: Radius.circular(16),
+                                      ),
+                                      color: const Color(0xFFEAEDFF),
+                                      image: DecorationImage(
+                                        image: NetworkImage(project.imageUrl),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),

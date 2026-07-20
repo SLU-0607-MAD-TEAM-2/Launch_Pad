@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import '../swipe/swipe_screen.dart';
 import '../../models/startup_project.dart';
 import '../explore/project_details_screen.dart';
@@ -125,6 +126,177 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           p.snippet.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesSkill && matchesIndustry && matchesSearch;
     }).toList();
+  }
+
+  // ── Filter bottom sheet ──────────────────────────────────────────────────────
+  void _showFilterBottomSheet() {
+    String selectedRole = 'All';
+    bool remoteOnly = false;
+    String selectedAvailability = 'All';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Container(
+          height: MediaQuery.of(context).size.height * 0.5,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Filters',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Role filter
+              const Text(
+                'ROLE',
+                style: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF64748B),
+                  letterSpacing: 1.0,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: ['All', 'Founder', 'Developer', 'Designer'].map((role) {
+                  final isSelected = selectedRole == role;
+                  return ChoiceChip(
+                    label: Text(role),
+                    selected: isSelected,
+                    onSelected: (_) => setSheetState(() => selectedRole = role),
+                    selectedColor: const Color(0xFF0052FF),
+                    backgroundColor: const Color(0xFFF8F9FC),
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : const Color(0xFF0F172A),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                    side: BorderSide(
+                      color: isSelected ? const Color(0xFF0052FF) : const Color(0xFFE2E8F0),
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    showCheckmark: false,
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              // Remote only toggle
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Remote Only',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  Switch(
+                    value: remoteOnly,
+                    onChanged: (val) => setSheetState(() => remoteOnly = val),
+                    activeTrackColor: const Color(0xFF0052FF).withValues(alpha: 0.5),
+                    activeThumbColor: const Color(0xFF0052FF),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Availability filter
+              const Text(
+                'AVAILABILITY',
+                style: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF64748B),
+                  letterSpacing: 1.0,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: ['All', 'Immediate', 'Part-time', 'Weekends'].map((avail) {
+                  final isSelected = selectedAvailability == avail;
+                  return ChoiceChip(
+                    label: Text(avail),
+                    selected: isSelected,
+                    onSelected: (_) => setSheetState(() => selectedAvailability = avail),
+                    selectedColor: const Color(0xFF0052FF),
+                    backgroundColor: const Color(0xFFF8F9FC),
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : const Color(0xFF0F172A),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                    side: BorderSide(
+                      color: isSelected ? const Color(0xFF0052FF) : const Color(0xFFE2E8F0),
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    showCheckmark: false,
+                  );
+                }).toList(),
+              ),
+              const Spacer(),
+              // Apply button
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0052FF),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Filters applied: $selectedRole, Remote: $remoteOnly, $selectedAvailability'),
+                        backgroundColor: const Color(0xFF0052FF),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Apply Filters',
+                    style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // ── Founder tap dialog ──────────────────────────────────────────────────────
@@ -423,7 +595,14 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
@@ -453,6 +632,34 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                     child: const Icon(Icons.close, color: Color(0xFF94A3B8), size: 18),
                   ),
               ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Filter button
+          GestureDetector(
+            onTap: _showFilterBottomSheet,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0052FF),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Iconsax.setting_4, color: Colors.white, size: 16),
+                  SizedBox(width: 6),
+                  Text(
+                    'Filters',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 20),
@@ -678,10 +885,27 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           ],
         ),
         actions: [
-          // Notification bell
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Color(0xFF475569)),
-            onPressed: () {},
+          // Notification bell with badge
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              IconButton(
+                icon: const Icon(Iconsax.notification, color: Color(0xFF475569), size: 22),
+                onPressed: () {},
+              ),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEF4444),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
         bottom: PreferredSize(

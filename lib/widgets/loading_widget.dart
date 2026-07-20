@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+import '../utils/app_theme.dart';
 
+/// LaunchPadLoading — premium 3-dot pulse loader with orbital ring.
 class LaunchPadLoading extends StatefulWidget {
   final String message;
   final bool isOverlay;
@@ -15,89 +18,54 @@ class LaunchPadLoading extends StatefulWidget {
   State<LaunchPadLoading> createState() => _LaunchPadLoadingState();
 }
 
-class _LaunchPadLoadingState extends State<LaunchPadLoading> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+class _LaunchPadLoadingState extends State<LaunchPadLoading>
+    with TickerProviderStateMixin {
+  late AnimationController _orbitCtrl;
+  late AnimationController _pulseCtrl;
+  late AnimationController _dotsCtrl;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+    _orbitCtrl = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    )..repeat();
+
+    _pulseCtrl = AnimationController(
+      duration: const Duration(milliseconds: 900),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _dotsCtrl = AnimationController(
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     )..repeat();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _orbitCtrl.dispose();
+    _pulseCtrl.dispose();
+    _dotsCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primaryColor = theme.colorScheme.primary;
-
     Widget body = Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Elegant Orbit + Pulse Animation
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              // Orbiting circle
-              RotationTransition(
-                turns: _controller,
-                child: CustomPaint(
-                  size: const Size(64, 64),
-                  painter: _OrbitPainter(color: primaryColor),
-                ),
-              ),
-              // Inner pulsing dot
-              AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  final scale = 0.8 + 0.25 * math.sin(_controller.value * 2 * math.pi);
-                  return Transform.scale(
-                    scale: scale,
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: primaryColor.withValues(alpha: 0.4),
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                          )
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.rocket_launch_rounded,
-                          color: Colors.white,
-                          size: 14,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          // Loading Message
+          _buildOrbit(),
+          const SizedBox(height: 20),
+          _buildDots(),
+          const SizedBox(height: 10),
           Text(
             widget.message,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
-              letterSpacing: 0.2,
+            style: AppTypography.labelMedium.copyWith(
+              color: AppColor.mutedText,
+              letterSpacing: 0.3,
             ),
           ),
         ],
@@ -106,52 +74,147 @@ class _LaunchPadLoadingState extends State<LaunchPadLoading> with SingleTickerPr
 
     if (widget.isOverlay) {
       return Container(
-        color: Colors.black.withValues(alpha: 0.35),
-        child: BackdropFilter(
-          filter: const ColorFilter.mode(Colors.transparent, BlendMode.srcOver),
-          child: body,
-        ),
+        color: AppColor.white.withValues(alpha: 0.85),
+        child: body,
       );
     }
-
     return body;
+  }
+
+  Widget _buildOrbit() {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_orbitCtrl, _pulseCtrl]),
+      builder: (context, _) {
+        final pulse = 0.88 + 0.12 * math.sin(_pulseCtrl.value * math.pi);
+        return Transform.scale(
+          scale: pulse,
+          child: SizedBox(
+            width: 72,
+            height: 72,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Outer orbit ring with gradient arc
+                CustomPaint(
+                  size: const Size(72, 72),
+                  painter: _ArcRingPainter(
+                    progress: _orbitCtrl.value,
+                    color: AppColor.primaryBlue,
+                  ),
+                ),
+                // Core icon
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [AppColor.primaryBlue, AppColor.accentCyan],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColor.primaryBlue.withValues(alpha: 0.4),
+                        blurRadius: 14,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Iconsax.flash_circle,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDots() {
+    return AnimatedBuilder(
+      animation: _dotsCtrl,
+      builder: (context, _) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(3, (i) {
+            final phase = i / 3;
+            final t = (_dotsCtrl.value - phase + 1.0) % 1.0;
+            final opacity = (math.sin(t * math.pi)).clamp(0.2, 1.0);
+            final scale =
+                0.7 + 0.3 * (math.sin(t * math.pi)).clamp(0.0, 1.0);
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Transform.scale(
+                scale: scale,
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        AppColor.primaryBlue.withValues(alpha: opacity),
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      },
+    );
   }
 }
 
-class _OrbitPainter extends CustomPainter {
+class _ArcRingPainter extends CustomPainter {
+  final double progress;
   final Color color;
 
-  _OrbitPainter({required this.color});
+  const _ArcRingPainter({required this.progress, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.15)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
+    final radius = size.width / 2 - 4;
 
-    // Draw background thin track
-    canvas.drawCircle(center, radius, paint);
+    // Background track
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..color = color.withValues(alpha: 0.1)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3,
+    );
 
-    // Draw active orbiting arc
-    final activePaint = Paint()
-      ..color = color
+    // Rotating gradient arc
+    final arcPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.5
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.round
+      ..shader = SweepGradient(
+        colors: [color.withValues(alpha: 0.1), color],
+        startAngle: 0,
+        endAngle: math.pi * 1.2,
+        transform: GradientRotation(
+            progress * 2 * math.pi - math.pi / 2),
+      ).createShader(Rect.fromCircle(center: center, radius: radius));
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2,
-      math.pi / 2, // 90 degree arc
+      progress * 2 * math.pi - math.pi / 2,
+      math.pi * 1.2,
       false,
-      activePaint,
+      arcPaint,
     );
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(_ArcRingPainter old) =>
+      old.progress != progress || old.color != color;
 }

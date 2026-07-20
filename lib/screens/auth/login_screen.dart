@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/scale_tap.dart';
+import 'sign_up_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -625,8 +626,11 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Registration is disabled in prototype.')),
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const SignUpScreen(),
+                                    ),
                                   );
                                 },
                                 child: const Text(

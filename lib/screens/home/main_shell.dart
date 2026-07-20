@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'discovery_screen.dart';
+import 'package:provider/provider.dart';
+import '../../providers/nav_provider.dart';
+import '../home/discovery_screen.dart';
 import '../messages/messages_list_screen.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
+import '../../widgets/launchpad_bottom_nav.dart';
+import '../../utils/app_theme.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -12,78 +16,27 @@ class MainShell extends StatefulWidget {
 }
 
 class MainShellState extends State<MainShell> {
-  int _selectedIndex = 0;
-
   void setSelectedIndex(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    context.read<NavProvider>().setIndex(index);
   }
-
-  final List<Widget> _screens = [
-    const DiscoveryScreen(),
-    const MessagesListScreen(),
-    const ProfileScreen(),
-    const SettingsScreen(),
-  ];
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final nav = context.watch<NavProvider>();
 
     return Scaffold(
+      backgroundColor: AppColor.screenBgLight,
       body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
+        index: nav.currentIndex,
+        children: const [
+          DiscoveryScreen(),
+          MessagesListScreen(),
+          ProfileScreen(),
+          SettingsScreen(),
+        ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          border: Border(
-            top: BorderSide(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
-            ),
-          ),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: theme.colorScheme.surface,
-          selectedItemColor: theme.colorScheme.primary,
-          unselectedItemColor: theme.colorScheme.onSurfaceVariant,
-          selectedLabelStyle: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontSize: 11,
-          ),
-          elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.explore),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble_outline),
-              label: 'Message',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              label: 'Profile',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              label: 'Settings',
-            ),
-          ],
-        ),
-      ),
+      // Floating bottom nav — no built-in BottomNavigationBar
+      bottomNavigationBar: const LaunchPadBottomNav(),
     );
   }
 }

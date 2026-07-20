@@ -94,15 +94,18 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with Single
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Hero Image placeholder zone
-                  Container(
-                    height: 200,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEAEDFF),
-                      borderRadius: BorderRadius.circular(16),
-                      image: DecorationImage(
-                        image: NetworkImage(widget.project.imageUrl),
-                        fit: BoxFit.cover,
+                  Hero(
+                    tag: 'project-${widget.project.id}',
+                    child: Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEAEDFF),
+                        borderRadius: BorderRadius.circular(16),
+                        image: DecorationImage(
+                          image: NetworkImage(widget.project.imageUrl),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),

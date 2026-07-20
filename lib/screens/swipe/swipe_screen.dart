@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:provider/provider.dart';
+import 'package:confetti/confetti.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../models/user_profile.dart';
 import '../../providers/discovery_provider.dart';
 import '../messages/chat_screen.dart';
 import '../home/main_shell.dart';
-import '../../widgets/loading_widget.dart';
 
 /// SwipeScreen — card-based talent matching using flutter_card_swiper v6.
 /// Displays a swipeable deck of [UserProfile] cards.
@@ -18,6 +19,7 @@ class SwipeScreen extends StatefulWidget {
 
 class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin {
   final CardSwiperController _controller = CardSwiperController();
+  late ConfettiController _confettiController;
 
   late List<UserProfile> _allProfiles;
   late List<UserProfile> _deck;
@@ -48,6 +50,7 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
   @override
   void initState() {
     super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
 
     // Match overlay animations
     _matchFadeController = AnimationController(
@@ -122,6 +125,7 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
   void dispose() {
     _searchController.dispose();
     _controller.dispose();
+    _confettiController.dispose();
     _matchFadeController.dispose();
     _heartBounceController.dispose();
     _slideUpController.dispose();
@@ -156,36 +160,97 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
         _lastMatch = profile;
         _showMatchOverlay = true;
       });
-      // Trigger match animations
       _matchFadeController.forward(from: 0.0);
       _heartBounceController.forward(from: 0.0);
       _slideUpController.forward(from: 0.0);
       _avatarPopController.forward(from: 0.0);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Connection request sent to ${profile.name}'),
-          backgroundColor: const Color(0xFF0052FF),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      _confettiController.play();
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFF0052FF),
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            duration: const Duration(seconds: 2),
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    '✦ Connection request sent to ${profile.name}',
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
     } else if (direction == CardSwiperDirection.top) {
-      // Save
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Profile saved: ${profile.name}'),
-          backgroundColor: const Color(0xFFF59E0B),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFFF59E0B),
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            duration: const Duration(seconds: 2),
+            content: Row(
+              children: [
+                const Icon(Icons.bookmark_added_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Saved ${profile.name} to your list',
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
     } else if (direction == CardSwiperDirection.left) {
-      // Skip
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Skipped ${profile.name}'),
-          backgroundColor: const Color(0xFF64748B),
-          duration: const Duration(seconds: 1),
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFF334155),
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            duration: const Duration(milliseconds: 1500),
+            content: Row(
+              children: [
+                const Icon(Icons.arrow_back_rounded, color: Colors.white70, size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Skipped ${profile.name}',
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
     }
     return true;
   }
@@ -206,6 +271,16 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
     if (_deck.isNotEmpty) {
       _controller.swipeRight();
     }
+  }
+
+  int _calculateCompatibility(UserProfile profile) {
+    // Simple skill-based compatibility score
+    final userSkills = {'Flutter', 'Dart', 'Figma', 'Python', 'React'};
+    final matching = profile.skills.where((s) => userSkills.contains(s)).length;
+    final total = profile.skills.length;
+    if (total == 0) return 50;
+    final score = ((matching / total) * 100).round();
+    return score.clamp(40, 99);
   }
 
   Widget _buildGlassTag(String text) {
@@ -392,6 +467,33 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                 ),
               ),
             ),
+            // Compatibility score badge
+            Positioned(
+              top: 20,
+              left: 20,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.auto_awesome, color: Colors.white, size: 12),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${_calculateCompatibility(profile)}% match',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -455,127 +557,151 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
     return Positioned.fill(
       child: FadeTransition(
         opacity: _matchFadeAnimation,
-        child: Container(
-          color: Colors.black.withValues(alpha: 0.92),
-          child: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Animated heart icon
-                ScaleTransition(
-                  scale: _heartScaleAnimation,
-                  child: const Icon(Icons.favorite, color: Colors.redAccent, size: 72),
-                ),
-                const SizedBox(height: 20),
-                // Animated "It's a Match!" text
-                SlideTransition(
-                  position: _slideUpAnimation,
-                  child: const Text(
-                    "It's a Match!",
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 38,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+        child: Stack(
+          children: [
+            Container(
+              color: Colors.black.withValues(alpha: 0.92),
+            ),
+            // Confetti widget
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirectionality: BlastDirectionality.explosive,
+                shouldLoop: false,
+                colors: const [
+                  Colors.red,
+                  Colors.blue,
+                  Colors.green,
+                  Colors.yellow,
+                  Colors.orange,
+                  Colors.purple,
+                ],
+                numberOfParticles: 30,
+                gravity: 0.1,
+                emissionFrequency: 0.05,
+              ),
+            ),
+            SafeArea(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Animated heart icon
+                  ScaleTransition(
+                    scale: _heartScaleAnimation,
+                    child: const Icon(Icons.favorite, color: Colors.redAccent, size: 72),
                   ),
-                ),
-                const SizedBox(height: 10),
-                SlideTransition(
-                  position: _slideUpAnimation,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Text(
-                      'You and ${match.name} are ready to build together.',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 17,
-                        color: Colors.white70,
-                        height: 1.4,
+                  const SizedBox(height: 20),
+                  // Animated "It's a Match!" text
+                  SlideTransition(
+                    position: _slideUpAnimation,
+                    child: const Text(
+                      "It's a Match!",
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 38,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 40),
-                // Animated avatars
-                ScaleTransition(
-                  scale: _avatarScaleAnimation,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 46,
-                        backgroundImage: NetworkImage(
-                          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+                  const SizedBox(height: 10),
+                  SlideTransition(
+                    position: _slideUpAnimation,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: Text(
+                        'You and ${match.name} are ready to build together.',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 17,
+                          color: Colors.white70,
+                          height: 1.4,
                         ),
-                        backgroundColor: Colors.white,
                       ),
-                      Align(
-                        widthFactor: 0.6,
-                        child: CircleAvatar(
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  // Animated avatars
+                  ScaleTransition(
+                    scale: _avatarScaleAnimation,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircleAvatar(
                           radius: 46,
-                          backgroundImage: NetworkImage(match.avatarUrl),
+                          backgroundImage: NetworkImage(
+                            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+                          ),
                           backgroundColor: Colors.white,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 48),
-                SlideTransition(
-                  position: _slideUpAnimation,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0052FF),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 0,
-                    ),
-                    onPressed: () {
-                      setState(() => _showMatchOverlay = false);
-                      final shell = context.findAncestorStateOfType<MainShellState>();
-                      if (shell != null) {
-                        shell.setSelectedIndex(1);
-                      } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ChatScreen(
-                              name: match.name,
-                              avatar: match.avatarUrl,
-                            ),
+                        Align(
+                          widthFactor: 0.6,
+                          child: CircleAvatar(
+                            radius: 46,
+                            backgroundImage: NetworkImage(match.avatarUrl),
+                            backgroundColor: Colors.white,
                           ),
-                        );
-                      }
-                    },
-                    child: const Text(
-                      'Start Chatting',
-                      style: TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+                  SlideTransition(
+                    position: _slideUpAnimation,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0052FF),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        setState(() => _showMatchOverlay = false);
+                        final shell = context.findAncestorStateOfType<MainShellState>();
+                        if (shell != null) {
+                          shell.setSelectedIndex(1);
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChatScreen(
+                                name: match.name,
+                                avatar: match.avatarUrl,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text(
+                        'Start Chatting',
+                        style: TextStyle(
+                          fontFamily: 'Geist',
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 14),
-                SlideTransition(
-                  position: _slideUpAnimation,
-                  child: TextButton(
-                    onPressed: () => setState(() => _showMatchOverlay = false),
-                    child: const Text(
-                      'Keep Swiping',
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                  const SizedBox(height: 14),
+                  SlideTransition(
+                    position: _slideUpAnimation,
+                    child: TextButton(
+                      onPressed: () => setState(() => _showMatchOverlay = false),
+                      child: const Text(
+                        'Keep Swiping',
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -598,7 +724,14 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Row(
@@ -692,7 +825,50 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
         // ── Main Swiper Content ──────────────────────────────────────────────
         Expanded(
           child: _isLoading
-              ? const LaunchPadLoading(message: 'Loading profiles...')
+              ? Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 36,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: 5,
+                            itemBuilder: (_, i) => Container(
+                              width: 80,
+                              height: 36,
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               : Stack(
                   children: [
                     _deck.isEmpty

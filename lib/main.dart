@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/swipe_provider.dart';
 import 'providers/matches_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/discovery_provider.dart';
+import 'providers/nav_provider.dart';
 import 'services/mock_api_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/splash_screen.dart';
+import 'screens/auth/onboarding_screen.dart';
 import 'screens/profile/edit_profile_screen.dart';
 import 'screens/feedback/feedback_screen.dart';
 import 'screens/home/main_shell.dart';
@@ -16,13 +19,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final apiService = MockApiService();
   await apiService.loadAll();
-  runApp(LaunchPadApp(apiService: apiService));
+  final prefs = await SharedPreferences.getInstance();
+  final seenOnboarding = prefs.getBool('seen_onboarding') ?? false;
+  runApp(LaunchPadApp(apiService: apiService, seenOnboarding: seenOnboarding));
 }
 
 class LaunchPadApp extends StatelessWidget {
   final MockApiService apiService;
+  final bool seenOnboarding;
 
-  const LaunchPadApp({super.key, required this.apiService});
+  const LaunchPadApp({super.key, required this.apiService, this.seenOnboarding = false});
 
   @override
   Widget build(BuildContext context) {
@@ -32,17 +38,21 @@ class LaunchPadApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MatchesProvider(apiService)),
         ChangeNotifierProvider(create: (_) => ChatProvider(apiService)),
         ChangeNotifierProvider(create: (_) => DiscoveryProvider(apiService)),
+        ChangeNotifierProvider(create: (_) => NavProvider()),
       ],
       child: MaterialApp(
         title: 'LaunchPad',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        initialRoute: '/',
+        initialRoute: seenOnboarding ? '/' : '/onboarding',
         onGenerateRoute: (settings) {
           Widget builder;
           switch (settings.name) {
             case '/':
               builder = const SplashScreen();
+              break;
+            case '/onboarding':
+              builder = const OnboardingScreen();
               break;
             case '/login':
               builder = const LoginScreen();

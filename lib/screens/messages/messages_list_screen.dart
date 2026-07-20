@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'chat_screen.dart';
-import '../../widgets/loading_widget.dart';
 
 class MessagesListScreen extends StatefulWidget {
   const MessagesListScreen({super.key});
@@ -9,12 +9,17 @@ class MessagesListScreen extends StatefulWidget {
   State<MessagesListScreen> createState() => _MessagesListScreenState();
 }
 
-class _MessagesListScreenState extends State<MessagesListScreen> {
+class _MessagesListScreenState extends State<MessagesListScreen> with SingleTickerProviderStateMixin {
   bool _isLoading = true;
+  late AnimationController _staggerController;
 
   @override
   void initState() {
     super.initState();
+    _staggerController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
     _simulateLoading();
   }
 
@@ -24,8 +29,15 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
         setState(() {
           _isLoading = false;
         });
+        _staggerController.forward();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _staggerController.dispose();
+    super.dispose();
   }
 
   @override
@@ -111,7 +123,35 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
       ),
       body: SafeArea(
         child: _isLoading
-            ? const LaunchPadLoading(message: 'Loading messages...')
+            ? Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 110,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: 4,
+                          itemBuilder: (_, i) => Container(
+                            height: 80,
+                            margin: const EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
             : Column(
                 children: [
                   // ── New Matches (Horizontal Row) ─────────────────────────────────
@@ -219,84 +259,105 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
                       ),
                       itemBuilder: (context, index) {
                         final chat = mockConversations[index];
+                        final delay = (index * 60) / 800;
+                        final slideAnimation = Tween<Offset>(
+                          begin: const Offset(0.3, 0),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(
+                          parent: _staggerController,
+                          curve: Interval(delay, (delay + 0.4).clamp(0.0, 1.0), curve: Curves.easeOutCubic),
+                        ));
+                        final fadeAnimation = Tween<double>(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).animate(CurvedAnimation(
+                          parent: _staggerController,
+                          curve: Interval(delay, (delay + 0.4).clamp(0.0, 1.0), curve: Curves.easeOut),
+                        ));
 
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                          leading: CircleAvatar(
-                            radius: 28,
-                            backgroundImage: NetworkImage(chat['avatar']),
-                            backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                          ),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                chat['name'],
-                                style: TextStyle(
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  fontWeight: chat['unread'] ? FontWeight.bold : FontWeight.w600,
-                                  fontSize: 16,
-                                  color: const Color(0xFF0F172A),
-                                ),
+                        return SlideTransition(
+                          position: slideAnimation,
+                          child: FadeTransition(
+                            opacity: fadeAnimation,
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                              leading: CircleAvatar(
+                                radius: 28,
+                                backgroundImage: NetworkImage(chat['avatar']),
+                                backgroundColor: theme.colorScheme.surfaceContainerHighest,
                               ),
-                              Text(
-                                chat['time'],
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    chat['message'],
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    chat['name'],
                                     style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: chat['unread'] ? FontWeight.w500 : FontWeight.normal,
-                                      color: chat['unread'] ? const Color(0xFF0F172A) : theme.colorScheme.onSurfaceVariant,
+                                      fontFamily: 'Plus Jakarta Sans',
+                                      fontWeight: chat['unread'] ? FontWeight.bold : FontWeight.w600,
+                                      fontSize: 16,
+                                      color: const Color(0xFF0F172A),
                                     ),
                                   ),
-                                ),
-                                if (chat['unread'])
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF0052FF), // Electric Blue unread indicator
-                                      shape: BoxShape.circle,
+                                  Text(
+                                    chat['time'],
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: theme.colorScheme.onSurfaceVariant,
                                     ),
                                   ),
-                              ],
-                            ),
-                          ),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Opening conversation with ${chat['name']}...'),
-                                duration: const Duration(seconds: 1),
+                                ],
                               ),
-                            );
-                            Future.delayed(const Duration(milliseconds: 600), () {
-                              if (context.mounted) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChatScreen(
-                                      name: chat['name'],
-                                      avatar: chat['avatar'],
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        chat['message'],
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: chat['unread'] ? FontWeight.w500 : FontWeight.normal,
+                                          color: chat['unread'] ? const Color(0xFF0F172A) : theme.colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
                                     ),
+                                    if (chat['unread'])
+                                      Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xFF0052FF),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Opening conversation with ${chat['name']}...'),
+                                    duration: const Duration(seconds: 1),
                                   ),
                                 );
-                              }
-                            });
-                          },
+                                Future.delayed(const Duration(milliseconds: 600), () {
+                                  if (context.mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ChatScreen(
+                                          name: chat['name'],
+                                          avatar: chat['avatar'],
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                });
+                              },
+                            ),
+                          ),
                         );
                       },
                     ),

@@ -88,4 +88,11 @@ class SwipeProvider extends ChangeNotifier {
     _showMatchOverlay = false;
     notifyListeners();
   }
+
+  void undo() {
+    if (_passed.isEmpty) return;
+    final lastPassed = _passed.removeLast();
+    _deck.insert(0, lastPassed);
+    notifyListeners();
+  }
 }

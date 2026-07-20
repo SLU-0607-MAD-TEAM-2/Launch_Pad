@@ -190,6 +190,7 @@ assets/images/week3_screenshots/profile.png
 
 ### New Screens
 - Added feedback form with name, email, category dropdown, star rating, and comments
+- Added onboarding carousel (3 slides: Founders, Developers, Designers) with skip button and shared_preferences
 
 ### Forms & Validation
 - Added login form with email format and password length validation
@@ -204,14 +205,32 @@ assets/images/week3_screenshots/profile.png
 ### Animations
 - Added splash screen with 3-phase logo animation
 - Added login screen with staggered entrance animation
-- Added swipe screen match overlay with parallel animations
+- Added swipe screen match overlay with confetti burst on match
+- Added shimmer skeleton loading on SwipeScreen and MessagesListScreen
+- Added staggered slide-in animation on MessagesListScreen conversations
+- Added Hero transitions on ExploreScreen project cards to ProjectDetailsScreen
 - Added reusable `ScaleTap` press-feedback widget
 - Added custom `LaunchPadLoading` indicator
 - Added global page transitions (fade + slide)
 - Added micro-animations for layout changes and content crossfades
 
+### New Features
+- Added compatibility score badge on swipe cards (skill-match percentage)
+- Added filter bottom sheet on DiscoveryScreen (Role, Remote Only, Availability)
+- Added My Applications section in ProfileScreen with status chips (Pending/Accepted/Rejected)
+- Added Saved Profiles section in ProfileScreen
+- Unified theme files into single `app_theme.dart` (merged AppColor, AppTypography, AppShapes, AppGradients, AppSpacing)
+- Wired NavProvider to MainShell for bottom nav state management
+- Connected ChatProvider to ChatScreen for message loading
+- Fixed Sign Up screen to match login screen design and navigate correctly
+- Removed Apple sign-up button from SignUpScreen
+
 ### Bug Fixes
 - Fixed `ExploreScreen` referencing undefined `mockProjects` variable
+- Fixed ChatScreen constructor to accept name, avatar, and optional userId
+- Fixed role_selection_screen missing MainShell import
+- Fixed widget_test.dart to pass required apiService parameter
+- Removed duplicate screens (home/explore_screen, profile/settings_screen, launchpad_loading, swipe_discovery_screen, home_feed_screen)
 
 ## Version Control Log
 - Repository initialized and scaffolded locally.
