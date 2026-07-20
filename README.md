@@ -15,11 +15,48 @@ Aspiring founders with a great idea but no technical skills, and developers/desi
 
 ## Target Users
 
-| Role | Description | Primary Needs |
-|---|---|---|
-| **Founders / Idea People** | Have an app or business idea but can't code or design it themselves | Recruit developers/designers via "Recommended Teammates," showcase their project clearly, review applications |
-| **Developers** | Have technical skills but lack an exciting project or want portfolio experience | Discover projects via "Recommended Startups" and Explore search/filters, see clear terms (equity, duration, location), apply directly |
-| **Creatives / Designers** | UI/UX designers, video editors, and digital marketers wanting real-world team experience | Same as developers — fast discovery, clear expectations, a way to build a real-world portfolio |
+
+|
+ Role 
+|
+ Description 
+|
+ Primary Needs 
+|
+|
+---
+|
+---
+|
+---
+|
+|
+**
+Founders / Idea People
+**
+|
+ Have an app or business idea but can't code or design it themselves 
+|
+ Recruit developers/designers via "Recommended Teammates," showcase their project clearly, review applications 
+|
+|
+**
+Developers
+**
+|
+ Have technical skills but lack an exciting project or want portfolio experience 
+|
+ Discover projects via "Recommended Startups" and Explore search/filters, see clear terms (equity, duration, location), apply directly 
+|
+|
+**
+Creatives / Designers
+**
+|
+ UI/UX designers, video editors, and digital marketers wanting real-world team experience 
+|
+ Same as developers — fast discovery, clear expectations, a way to build a real-world portfolio 
+|
 
 ## Core Features (per current wireframes)
 
@@ -31,43 +68,41 @@ Aspiring founders with a great idea but no technical skills, and developers/desi
 
 ## Navigation Flow
 
-```
 Login / Sign-up (planned — not yet in current wireframe set)
-        │
-        ▼
+│
+▼
 Home (Recommended Startups / Recommended Teammates — swipe feed)
-        │
-   ┌────┼─────────────┬───────────────┐
-   ▼    ▼              ▼               ▼
-Explore  Apply to Join  Messages ──> Chat   Profile
-(search/filter)                (conversation list)
-```
+│
+┌────┼─────────────┬───────────────┐
+▼ ▼ ▼ ▼
+Explore Apply to Join Messages ──> Chat Profile
+(search/filter) (conversation list)
+
 
 ## Project Structure
 
-```
 launchpad_flutter_app/
 ├── lib/
-│   ├── main.dart
-│   ├── screens/
-│   │   ├── auth/          # login_screen.dart, role_selection_screen.dart (planned)
-│   │   ├── home/          # home_feed_screen.dart (Recommended Startups / Teammates)
-│   │   ├── explore/       # explore_screen.dart (search + filters)
-│   │   ├── messages/      # messages_list_screen.dart, chat_screen.dart
-│   │   └── profile/       # profile_screen.dart
-│   ├── widgets/           # Reusable UI components (startup card, chat bubble, etc.)
-│   ├── models/            # user_profile.dart, startup_project.dart, application.dart
-│   ├── services/          # auth_service.dart, firestore_service.dart
-│   ├── providers/         # swipe_provider.dart (state management)
-│   └── utils/             # date_formatter.dart
+│ ├── main.dart
+│ ├── screens/
+│ │ ├── auth/ # login_screen.dart, role_selection_screen.dart (planned)
+│ │ ├── home/ # home_feed_screen.dart (Recommended Startups / Teammates)
+│ │ ├── explore/ # explore_screen.dart (search + filters)
+│ │ ├── messages/ # messages_list_screen.dart, chat_screen.dart
+│ │ └── profile/ # profile_screen.dart
+│ ├── widgets/ # Reusable UI components (startup card, chat bubble, etc.)
+│ ├── models/ # user_profile.dart, startup_project.dart, application.dart
+│ ├── services/ # auth_service.dart, firestore_service.dart
+│ ├── providers/ # swipe_provider.dart (state management)
+│ └── utils/ # date_formatter.dart
 ├── assets/
-│   ├── images/
-│   └── icons/
+│ ├── images/
+│ └── icons/
 ├── test/
 ├── pubspec.yaml
 ├── .gitignore
 └── README.md
-```
+
 
 ## Tech Stack
 
@@ -126,59 +161,68 @@ Wireframes for the Home, Explore, Messages, and Profile screens were designed by
 
 ### Screenshots
 
+#### Login
+| Login |
+|---|
+| ![Login](assets/images/week3_screenshots/login.png) |
 
-|
- Login Screen 
-|
- Swipe Match Screen 
-|
-|
----
-|
----
-|
-|
-!
-[
-Login Screen
-](
-assets/images/week3_screenshots/login.png
-)
-|
-!
-[
-Swipe Screen
-](
-assets/images/week3_screenshots/swipe.png
-)
-|
+*Variant: `login01.png` (alternate state)*
 
+#### Home
+| Home |
+|---|
+| ![Home](assets/images/week3_screenshots/home.png) |
 
-|
- Matches Screen 
-|
- Profile & Edit Profile 
-|
-|
----
-|
----
-|
-|
-!
-[
-Matches Screen
-](
-assets/images/week3_screenshots/matches.png
-)
-|
-!
-[
-Profile Screen
-](
-assets/images/week3_screenshots/profile.png
-)
-|
+#### Discovery / Swipe
+| Swipe Match | It's a Match! |
+|---|---|
+| ![Swipe](assets/images/week3_screenshots/swipe.png) | ![Match](assets/images/week3_screenshots/match_celebration.png) |
+
+Swiping triggers real-time toast notifications for saved/skipped profiles:
+`swipe_notification.png`, `swipe_notification01.png`
+
+#### Explore
+| Explore |
+|---|
+| ![Explore](assets/images/week3_screenshots/explore.png) |
+
+*Variant: `explore01.png` (filtered/alternate state)*
+
+#### Search
+| Search |
+|---|
+| ![Search](assets/images/week3_screenshots/search.png) |
+
+#### Matches
+| Matches |
+|---|
+| ![Matches](assets/images/week3_screenshots/matches.png) |
+
+#### Profile
+| Profile | Saved Profiles |
+|---|---|
+| ![Profile](assets/images/week3_screenshots/profile.png) | ![Saved Profiles](assets/images/week3_screenshots/saved_profiles.png) |
+
+*Variant: `profile01.png` (alternate state)*
+
+#### Settings
+| Settings |
+|---|
+| ![Settings](assets/images/week3_screenshots/settings.png) |
+
+*Variants: `settings01.png`, `settings02.png` (toggled/alternate states)*
+
+#### Feedback
+| Send Feedback |
+|---|
+| ![Feedback](assets/images/week3_screenshots/feedback.png) |
+
+*Variant: `feedback01.png` (submitted/alternate state)*
+
+#### Bug Report
+| Report a Bug |
+|---|
+| ![Bug Report](assets/images/week3_screenshots/bug_report.png) |
 
 ## Week 3 Changes
 
