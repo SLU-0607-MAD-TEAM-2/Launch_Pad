@@ -84,53 +84,107 @@ Wireframes for the Home, Explore, Messages, and Profile screens were designed by
 ## Development Roadmap
 
 - **Week 1:** Proposal, wireframes, project setup ✅ (this repo)
-- **Week 2:** Build static UI screens (Home, Explore, Messages, Profile, and Login once designed)
+- **Week 2:** Build static UI screens (Home, Explore, Messages, Profile, and Login) ✅
 - **Week 3:** Connected screens to JSON data, added feedback form with validation, added error handling, implemented animations across multiple screens ✅
 - **Week 4+:** Wire up Firebase (auth, applications, real-time chat), push notifications
+
+## Week 2 Deliverable
+
+### Status: Fully Functional UI Prototype
+
+### Requirements Met
+- Minimum 4 interactive screens
+- Full navigation between all pages
+- Responsive, error-free layout
+- Clear commit history
+- Documentation & screenshots included
+
+### Core Screens Implemented
+
+#### Login Screen
+- Modern, responsive design
+- Smooth entrance animation
+- Email/password fields + Google sign-in option
+- Direct navigation to Home screen
+
+#### Home / Swipe Match Screen
+- Swipeable profile cards
+- Search bar + skill/industry filters
+- Working action buttons: Skip, Save, Connect
+- No layout crashes or overflow
+
+#### Matches & Messages Screen
+- Horizontal "stories-style" list of new matches
+- Vertical conversation list with timestamps and unread indicators
+- Clean, easy-to-read layout
+
+#### Profile & Edit Profile Screen
+- Full user profile view
+- Fully functional Edit Profile form
+- Updates saved instantly, responsive on all screen sizes
+- Links for GitHub & LinkedIn
+
+### Screenshots
+
+| Login Screen | Swipe Match Screen |
+|---|---|
+| ![Login Screen](screenshots/login.png) | ![Swipe Screen](screenshots/swipe.png) |
+
+| Matches Screen | Profile & Edit Profile |
+|---|---|
+| ![Matches Screen](screenshots/matches.png) | ![Profile Screen](screenshots/profile.png) |
 
 ## Week 3 Changes
 
 ### Data Integration
-- Added `MockApiService` that loads all data from JSON files in `assets/data/` (profiles, projects, matches, messages, applications)
-- Swipe/Discovery screens now load user profiles from `profiles.json`
-- Explore screen now loads projects from `projects.json` via `DiscoveryProvider`
-- All screens fetch real data at startup instead of using hardcoded values
+- Connected screens to JSON data (`profiles.json`, `projects.json`, `matches.json`, `messages.json`, `applications.json`)
+- Added `MockApiService` to load all data from `assets/data/`
+- Explore screen now fetches projects via `DiscoveryProvider`
+- Swipe/Discovery screens load user profiles from JSON
 
 ### New Screens
-- **Feedback Screen** (`lib/screens/feedback/feedback_screen.dart`) — form with name, email, category dropdown, star rating, and comments
-- Accessible from Settings > Send Feedback
+- Added feedback form with name, email, category dropdown, star rating, and comments
 
 ### Forms & Validation
-- **Login form** — email (required + regex format) and password (required + min 6 chars)
-- **Edit Profile form** (`lib/screens/profile/edit_profile_screen.dart`) — fully functional form with validation on name, role, location, and bio (all required); updates saved instantly
-- **Feedback form** — name (required), email (required + valid format), category (required), rating (required + 1-5 stars), comments (required + min 10 chars)
+- Added login form with email format and password length validation
+- Added edit profile form with validation on name, role, location, and bio
+- Added feedback form with required fields and minimum character limits
 
 ### Error Handling
-- `MockApiService.loadAll()` wrapped in try/catch with `isLoaded`, `hasError`, and `errorMessage` state
+- Wrapped data loading in try/catch with error state handling
 - App gracefully handles missing or malformed JSON data
 - Forms show inline validation errors on submit
 
 ### Animations
-- **Splash Screen** — 3-phase sequence: logo scale/fade (1s), hover oscillation (1.5s repeating), lift-off transition (500ms)
-- **Login Screen** — 4-phase staggered entrance: logo zoom, welcome text slide-in, subtitle fade, form card slide-up (2s total)
-- **Swipe Screen** — Match overlay with 4 parallel animations: backdrop fade, heart bounce (TweenSequence), slide-up text, avatar pop
-- **ScaleTap widget** — reusable press-feedback scale animation (96% shrink on tap, 100ms)
-- **LaunchPadLoading** — custom loading indicator with orbiting arc (CustomPainter) and pulsing rocket dot
-- **Page transitions** — global fade + slide (320ms) on all route navigation via PageRouteBuilder
-- **Micro-animations** — AnimatedContainer for smooth layout changes, AnimatedSwitcher for content crossfades
+- Added splash screen with 3-phase logo animation
+- Added login screen with staggered entrance animation
+- Added swipe screen match overlay with parallel animations
+- Added reusable `ScaleTap` press-feedback widget
+- Added custom `LaunchPadLoading` indicator
+- Added global page transitions (fade + slide)
+- Added micro-animations for layout changes and content crossfades
 
 ### Bug Fixes
-- Fixed `ExploreScreen` referencing undefined `mockProjects` variable — now uses `DiscoveryProvider.projects`
+- Fixed `ExploreScreen` referencing undefined `mockProjects` variable
 
 ## Version Control Log
 - Repository initialized and scaffolded locally.
 - Pushed to `SLU-0607-MAD-TEAM-2/Launch_Pad` on GitHub by Joshua Gomez (Documentation & Version Control Manager), July 12 2026.
 
-## Getting Started
+## How to Run Locally
 
 ```bash
+# Clone the repository
+git clone https://github.com/SLU-0607-MAD-TEAM-2/Launch_Pad.git
+
+# Navigate into project folder
+cd Launch_Pad
+
+# Install dependencies
 flutter pub get
-flutter run
+
+# Run on web / emulator
+flutter run -d chrome
 ```
 
 ## Team
