@@ -57,6 +57,12 @@ stitch_assets/
 .metadata
 
 # macOS
+
+
+.agents/
+.claude/
+agent/
+skills-lock.json
 .DS_Store
 
 # MiMo
