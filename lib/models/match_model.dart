@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class MatchModel {
   final String id;
   final String userId;
@@ -14,11 +16,17 @@ class MatchModel {
   });
 
   factory MatchModel.fromJson(Map<String, dynamic> json) {
+    DateTime parseDate(dynamic value) {
+      if (value is Timestamp) return value.toDate();
+      if (value is String) return DateTime.parse(value);
+      return DateTime.now();
+    }
+
     return MatchModel(
       id: json['id'] as String,
       userId: json['userId'] as String,
       matchedUserId: json['matchedUserId'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: parseDate(json['createdAt']),
       isMutual: json['isMutual'] as bool? ?? false,
     );
   }

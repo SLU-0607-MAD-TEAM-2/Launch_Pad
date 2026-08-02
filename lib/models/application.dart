@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class Application {
   final String id;
   final String projectId;

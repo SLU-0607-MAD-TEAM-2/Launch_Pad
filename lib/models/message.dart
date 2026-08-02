@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Message {
   final String id;
   final String senderId;
@@ -16,12 +18,18 @@ class Message {
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
+    DateTime parseDate(dynamic value) {
+      if (value is Timestamp) return value.toDate();
+      if (value is String) return DateTime.parse(value);
+      return DateTime.now();
+    }
+
     return Message(
       id: json['id'] as String,
       senderId: json['senderId'] as String,
       receiverId: json['receiverId'] as String,
       content: json['content'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: parseDate(json['timestamp']),
       isRead: json['isRead'] as bool? ?? false,
     );
   }
