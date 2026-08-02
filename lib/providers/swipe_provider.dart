@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_profile.dart';
+import '../services/firebase_data_service.dart';
 import '../services/mock_api_service.dart';
 
 class SwipeProvider extends ChangeNotifier {
@@ -12,6 +14,7 @@ class SwipeProvider extends ChangeNotifier {
   bool _showMatchOverlay = false;
   UserProfile? _lastMatch;
   final MockApiService _apiService;
+  final FirebaseDataService _firebase = FirebaseDataService();
 
   SwipeProvider(this._apiService) {
     _deck.addAll(List.from(_apiService.swipeProfiles));
@@ -42,7 +45,7 @@ class SwipeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void swipeRight() {
+  void swipeRight() async {
     if (_deck.isEmpty) return;
     final matched = _deck.first;
     _matches.add(matched);
@@ -52,6 +55,15 @@ class SwipeProvider extends ChangeNotifier {
     _dragDy = 0.0;
     _showMatchOverlay = true;
     notifyListeners();
+
+    // Create match in Firestore
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId != null) {
+      await _firebase.createMatch(currentUserId, matched.id);
+      // Create conversation
+      final conversationId = _firebase.getConversationId(currentUserId, matched.id);
+      await _firebase.getConversationId(currentUserId, matched.id);
+    }
   }
 
   void swipeLeft() {
@@ -63,7 +75,7 @@ class SwipeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void superLike() {
+  void superLike() async {
     if (_deck.isEmpty) return;
     final liked = _deck.first;
     _matches.insert(0, liked);
@@ -72,6 +84,12 @@ class SwipeProvider extends ChangeNotifier {
     _dragDx = 0.0;
     _dragDy = 0.0;
     notifyListeners();
+
+    // Create match in Firestore
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId != null) {
+      await _firebase.createMatch(currentUserId, liked.id);
+    }
   }
 
   void dismissMatchOverlay() {
