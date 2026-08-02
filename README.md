@@ -320,7 +320,7 @@ Screenshots for the final build are in `assets/images/final_screenshots/`.
 
 | Login | Home | Explore |
 |---|---|---|
-| ![Login](assets/images/week4_screenshots/login.png) | ![Home](assets/images/week4_screenshots/home.png) | ![Explore](assets/images/week4_screenshots/explore.png) |
+| ![Login](assets/images/final_screenshots/login.png) | ![Home](assets/images/final_screenshots/home.png) | ![Explore](assets/images/final_screenshots/explore.png) |
 
 *(Add more rows/screens as needed once your screenshots are in place — Program Details, Feedback, Profile, etc.)*
 
