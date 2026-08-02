@@ -316,7 +316,7 @@ flutter run -d chrome
 - Updated documentation and screenshots to reflect the final build
 
 ### Final Screenshots
-Screenshots for the final build are in `assets/images/week4_screenshots/`.
+Screenshots for the final build are in `assets/images/final_screenshots/`.
 
 | Login | Home | Explore |
 |---|---|---|
