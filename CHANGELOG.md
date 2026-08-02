@@ -1,5 +1,13 @@
 # Changelog
 
+## Week 4 — Final Deliverable (August 2, 2026)
+- Removed AI tooling artifacts (.agents, .claude, agent folders, skills-lock.json) from repository — 211 files cleaned up
+- Finalized UI polish and consistent branding across all screens
+- Confirmed all data integration and form submissions functioning end to end
+- Updated README with Week 4 section, final screenshots, and demo video link
+- Updated Development Roadmap to reflect actual Week 4 scope
+  
+
 ## Week 3 (July 15, 2026)
 
 ### Screens Connected to JSON Data
