@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users — allow seeding (unauthenticated create), authenticated read/write
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if true; // Allow seeding
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // Projects — allow seeding
+    match /projects/{projectId} {
+      allow read: if request.auth != null;
+      allow create: if true; // Allow seeding
+      allow update, delete: if request.auth != null;
+    }
+
+    // Matches — allow seeding and authenticated access
+    match /matches/{matchId} {
+      allow read: if request.auth != null;
+      allow create: if true; // Allow seeding
+      allow delete: if false;
+    }
+
+    // Conversations — allow seeding
+    match /conversations/{convId} {
+      allow read: if request.auth != null;
+      allow create: if true; // Allow seeding
+
+      // Messages subcollection
+      match /messages/{msgId} {
+        allow read: if request.auth != null;
+        allow create: if true; // Allow seeding
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+
+    // Applications — allow seeding
+    match /applications/{appId} {
+      allow read: if request.auth != null;
+      allow create: if true; // Allow seeding
+      allow update: if request.auth != null;
+      allow delete: if false;
+    }
+  }
+}
