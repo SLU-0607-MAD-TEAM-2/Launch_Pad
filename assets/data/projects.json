@@ -1,7 +1,7 @@
 [
   {
     "id": "proj1",
-    "founderId": "u1",
+    "founderId": "p1",
     "title": "LearnAI",
     "description": "AI-powered personalized learning platform that adapts to each student's pace and style.",
     "industry": "EdTech",
@@ -12,7 +12,7 @@
   },
   {
     "id": "proj2",
-    "founderId": "u3",
+    "founderId": "p3",
     "title": "BlockHealth",
     "description": "Blockchain-based medical records system for secure patient data management.",
     "industry": "HealthTech",
@@ -23,7 +23,7 @@
   },
   {
     "id": "proj3",
-    "founderId": "u5",
+    "founderId": "p5",
     "title": "GreenRoute",
     "description": "Carbon-neutral logistics optimization for last-mile delivery companies.",
     "industry": "Climate Tech",
@@ -34,7 +34,7 @@
   },
   {
     "id": "proj4",
-    "founderId": "u6",
+    "founderId": "p6",
     "title": "SocialCooking",
     "description": "Social platform for home cooks to share recipes and host virtual cooking classes.",
     "industry": "Social",
@@ -45,7 +45,7 @@
   },
   {
     "id": "proj5",
-    "founderId": "u9",
+    "founderId": "p9",
     "title": "PayStream",
     "description": "Real-time payment processing platform for small and medium businesses.",
     "industry": "FinTech",
@@ -56,7 +56,7 @@
   },
   {
     "id": "proj6",
-    "founderId": "u9",
+    "founderId": "p9",
     "title": "CloudNest",
     "description": "Multi-cloud management dashboard for DevOps teams.",
     "industry": "SaaS",
@@ -67,7 +67,7 @@
   },
   {
     "id": "proj7",
-    "founderId": "u10",
+    "founderId": "p10",
     "title": "ArtiChain",
     "description": "NFT marketplace for digital artists with royalty tracking.",
     "industry": "Web3",
@@ -78,7 +78,7 @@
   },
   {
     "id": "proj8",
-    "founderId": "u8",
+    "founderId": "p8",
     "title": "MedConnect",
     "description": "Telehealth platform connecting rural patients with specialists.",
     "industry": "HealthTech",

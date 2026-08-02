@@ -35,20 +35,22 @@ class LaunchPadBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = context.watch<NavProvider>();
     final currentIndex = nav.currentIndex;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 28),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColor.white,
+        color: isDark ? AppColor.darkSurface : AppColor.white,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
-          color: AppColor.borderHairline.withValues(alpha: 0.5),
+          color: (isDark ? AppColor.darkBorder : AppColor.borderHairline).withValues(alpha: 0.5),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColor.headingDark.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
             blurRadius: 32,
             spreadRadius: 0,
             offset: const Offset(0, 8),
@@ -123,6 +125,9 @@ class _NavTapTargetState extends State<_NavTapTarget>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return GestureDetector(
       onTapDown: (_) => _pressCtrl.forward(),
       onTapUp: (_) {
@@ -135,7 +140,7 @@ class _NavTapTargetState extends State<_NavTapTarget>
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
           decoration: BoxDecoration(
             color: widget.isActive
                 ? AppColor.primaryBlue.withValues(alpha: 0.08)
@@ -160,7 +165,7 @@ class _NavTapTargetState extends State<_NavTapTarget>
                   size: widget.isActive ? 26 : 24,
                   color: widget.isActive
                       ? AppColor.primaryBlue
-                      : AppColor.mutedText,
+                      : (isDark ? AppColor.darkMuted : AppColor.mutedText),
                 ),
               ),
               const SizedBox(height: 4),
@@ -170,7 +175,7 @@ class _NavTapTargetState extends State<_NavTapTarget>
                 style: AppTypography.labelSmall.copyWith(
                   color: widget.isActive
                       ? AppColor.primaryBlue
-                      : AppColor.mutedText,
+                      : (isDark ? AppColor.darkMuted : AppColor.mutedText),
                   fontWeight:
                       widget.isActive ? FontWeight.w700 : FontWeight.w500,
                   fontSize: 10,
@@ -184,9 +189,9 @@ class _NavTapTargetState extends State<_NavTapTarget>
                 opacity: widget.isActive ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 220),
                 child: Container(
-                  width: 18,
-                  height: 3,
-                  margin: const EdgeInsets.only(top: 3),
+                  width: 20,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 6),
                   decoration: BoxDecoration(
                     color: AppColor.primaryBlue,
                     borderRadius: BorderRadius.circular(2),

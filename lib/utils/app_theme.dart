@@ -13,28 +13,31 @@ class AppColor {
   AppColor._();
 
   // ── Core brand ────────────────────────────────────────────────────────────
-  // Matches login screen exactly: #0052FF primary, Slate-based neutrals
   static const Color primaryBlue    = Color(0xFF0052FF);
   static const Color accentCyan     = Color(0xFF00C2FF);
 
-  // ── Backgrounds ───────────────────────────────────────────────────────────
-  static const Color screenBgLight  = Color(0xFFF9FAFB); // Slate-50
+  // ── Light theme ──────────────────────────────────────────────────────────
+  static const Color screenBgLight  = Color(0xFFF9FAFB);
   static const Color screenBgWhite  = Color(0xFFFFFFFF);
-  static const Color inputBg        = Color(0xFFF8FAFC); // Slate-50 variant
-
-  // ── Text ──────────────────────────────────────────────────────────────────
-  static const Color headingDark    = Color(0xFF0F172A); // Slate-900
-  static const Color bodyText       = Color(0xFF475569); // Slate-600
-  static const Color mutedText      = Color(0xFF64748B); // Slate-500
-  static const Color placeholderText= Color(0xFF94A3B8); // Slate-400
-
-  // ── Borders ───────────────────────────────────────────────────────────────
-  static const Color borderHairline = Color(0xFFE2E8F0); // Slate-200
-
-  // ── Surfaces ──────────────────────────────────────────────────────────────
+  static const Color inputBg        = Color(0xFFF8FAFC);
+  static const Color headingDark    = Color(0xFF0F172A);
+  static const Color bodyText       = Color(0xFF475569);
+  static const Color mutedText      = Color(0xFF64748B);
+  static const Color placeholderText= Color(0xFF94A3B8);
+  static const Color borderHairline = Color(0xFFE2E8F0);
   static const Color white          = Color(0xFFFFFFFF);
   static const Color surface        = white;
   static const Color glassBg        = Color(0xF2FFFFFF);
+
+  // ── Dark theme ───────────────────────────────────────────────────────────
+  static const Color darkBg         = Color(0xFF0F172A);
+  static const Color darkSurface    = Color(0xFF1E293B);
+  static const Color darkCard       = Color(0xFF1E293B);
+  static const Color darkInput      = Color(0xFF334155);
+  static const Color darkBorder     = Color(0xFF334155);
+  static const Color darkText       = Color(0xFFF1F5F9);
+  static const Color darkMuted      = Color(0xFF94A3B8);
+  static const Color darkPlaceholder= Color(0xFF64748B);
 
   // ── Semantic ──────────────────────────────────────────────────────────────
   static const Color error          = Color(0xFFEF4444);
@@ -524,6 +527,110 @@ class AppTheme {
           elevation: 0,
           selectedItemColor: AppColor.primaryBlue,
           unselectedItemColor: AppColor.mutedText,
+          type: BottomNavigationBarType.fixed,
+        ),
+      );
+
+  static ThemeData get darkTheme => ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        fontFamily: GoogleFonts.inter().fontFamily,
+        colorScheme: ColorScheme.dark(
+          primary: AppColor.primaryBlue,
+          secondary: AppColor.accentCyan,
+          surface: AppColor.darkSurface,
+          surfaceTint: Colors.transparent,
+          error: AppColor.error,
+          onSurface: AppColor.darkText,
+          onSurfaceVariant: AppColor.darkMuted,
+        ),
+        scaffoldBackgroundColor: AppColor.darkBg,
+        textTheme: TextTheme(
+          displayLarge: AppTypography.displayLarge.copyWith(color: AppColor.darkText),
+          displayMedium: AppTypography.displayMedium.copyWith(color: AppColor.darkText),
+          displaySmall: AppTypography.displaySmall.copyWith(color: AppColor.darkText),
+          headlineLarge: AppTypography.headlineLarge.copyWith(color: AppColor.darkText),
+          headlineMedium: AppTypography.headlineMedium.copyWith(color: AppColor.darkText),
+          titleLarge: AppTypography.titleLarge.copyWith(color: AppColor.darkText),
+          titleMedium: AppTypography.titleMedium.copyWith(color: AppColor.darkText),
+          titleSmall: AppTypography.titleSmall.copyWith(color: AppColor.darkText),
+          bodyLarge: AppTypography.bodyLarge.copyWith(color: AppColor.darkText),
+          bodySmall: AppTypography.bodySmall.copyWith(color: AppColor.darkMuted),
+          labelLarge: AppTypography.labelLarge.copyWith(color: AppColor.darkMuted),
+          labelMedium: AppTypography.labelMedium.copyWith(color: AppColor.darkMuted),
+          labelSmall: AppTypography.labelSmall.copyWith(color: AppColor.darkMuted),
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: AppColor.darkBg,
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          scrolledUnderElevation: 0,
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: AppTypography.titleMedium.copyWith(
+            color: AppColor.darkText,
+          ),
+          iconTheme: const IconThemeData(color: AppColor.darkText),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColor.primaryBlue,
+            foregroundColor: AppColor.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xxl,
+              vertical: AppSpacing.md,
+            ),
+            textStyle: AppTypography.buttonLabel,
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColor.primaryBlue,
+            side: const BorderSide(color: AppColor.darkBorder),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLG),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xxl,
+              vertical: AppSpacing.md,
+            ),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: AppColor.darkInput,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppShapes.inputRadius),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppShapes.inputRadius),
+            borderSide: const BorderSide(color: AppColor.darkBorder),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppShapes.inputRadius),
+            borderSide: const BorderSide(color: AppColor.primaryBlue, width: 1.5),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppShapes.inputRadius),
+            borderSide: const BorderSide(color: AppColor.error),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          ),
+          hintStyle: AppTypography.bodySmall.copyWith(
+            color: AppColor.darkPlaceholder,
+          ),
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: AppColor.darkSurface,
+          elevation: 0,
+          selectedItemColor: AppColor.primaryBlue,
+          unselectedItemColor: AppColor.darkMuted,
           type: BottomNavigationBarType.fixed,
         ),
       );
