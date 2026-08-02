@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -66,7 +67,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     _liftoffController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        Navigator.pushReplacementNamed(context, '/login');
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        } else {
+          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+        }
       }
     });
 

@@ -130,6 +130,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
 
   // ── Filter bottom sheet ──────────────────────────────────────────────────────
   void _showFilterBottomSheet() {
+    final theme = Theme.of(context);
     String selectedRole = 'All';
     bool remoteOnly = false;
     String selectedAvailability = 'All';
@@ -141,9 +142,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => Container(
           height: MediaQuery.of(context).size.height * 0.5,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
@@ -157,30 +158,30 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE2E8F0),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Filters',
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 24),
               // Role filter
-              const Text(
+              Text(
                 'ROLE',
                 style: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF64748B),
+                  color: theme.colorScheme.onSurfaceVariant,
                   letterSpacing: 1.0,
                 ),
               ),
@@ -194,14 +195,14 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                     selected: isSelected,
                     onSelected: (_) => setSheetState(() => selectedRole = role),
                     selectedColor: const Color(0xFF0052FF),
-                    backgroundColor: const Color(0xFFF8F9FC),
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : const Color(0xFF0F172A),
+                      color: isSelected ? Colors.white : theme.colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
                     side: BorderSide(
-                      color: isSelected ? const Color(0xFF0052FF) : const Color(0xFFE2E8F0),
+                      color: isSelected ? const Color(0xFF0052FF) : theme.colorScheme.onSurface.withValues(alpha: 0.1),
                     ),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     showCheckmark: false,
@@ -213,13 +214,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Remote Only',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF0F172A),
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   Switch(
@@ -232,13 +233,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               ),
               const SizedBox(height: 20),
               // Availability filter
-              const Text(
+              Text(
                 'AVAILABILITY',
                 style: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF64748B),
+                  color: theme.colorScheme.onSurfaceVariant,
                   letterSpacing: 1.0,
                 ),
               ),
@@ -252,14 +253,14 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                     selected: isSelected,
                     onSelected: (_) => setSheetState(() => selectedAvailability = avail),
                     selectedColor: const Color(0xFF0052FF),
-                    backgroundColor: const Color(0xFFF8F9FC),
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : const Color(0xFF0F172A),
+                      color: isSelected ? Colors.white : theme.colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
                     side: BorderSide(
-                      color: isSelected ? const Color(0xFF0052FF) : const Color(0xFFE2E8F0),
+                      color: isSelected ? const Color(0xFF0052FF) : theme.colorScheme.onSurface.withValues(alpha: 0.1),
                     ),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     showCheckmark: false,
@@ -385,7 +386,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   }
 
   // ── Filter chip ─────────────────────────────────────────────────────────────
-  Widget _buildFilterChip(String label, String current, ValueChanged<String> onTap, Color accent) {
+  Widget _buildFilterChip(String label, String current, ValueChanged<String> onTap, Color accent, ThemeData theme) {
     final isActive = label == current;
     return GestureDetector(
       onTap: () => onTap(label),
@@ -394,9 +395,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? accent : Colors.white,
+          color: isActive ? accent : theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isActive ? accent : const Color(0xFFE2E8F0)),
+          border: Border.all(color: isActive ? accent : theme.colorScheme.onSurface.withValues(alpha: 0.1)),
           boxShadow: isActive
               ? [BoxShadow(color: accent.withValues(alpha: 0.2), blurRadius: 6, offset: const Offset(0, 2))]
               : null,
@@ -407,7 +408,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             fontFamily: 'Geist',
             fontSize: 13,
             fontWeight: FontWeight.bold,
-            color: isActive ? Colors.white : const Color(0xFF475569),
+            color: isActive ? Colors.white : theme.colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -426,12 +427,12 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withValues(alpha: theme.brightness == Brightness.dark ? 0.2 : 0.04),
               blurRadius: 10,
               offset: const Offset(0, 2),
             )
@@ -502,20 +503,20 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   // Project name
                   Text(
                     project.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     project.snippet,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 14,
-                      color: Color(0xFF64748B),
+                      color: theme.colorScheme.onSurfaceVariant,
                       height: 1.4,
                     ),
                     maxLines: 2,
@@ -525,18 +526,18 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   // Info row: duration + location
                   Row(
                     children: [
-                      const Icon(Icons.access_time, size: 14, color: Color(0xFF94A3B8)),
+                      Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurfaceVariant),
                       const SizedBox(width: 4),
                       Text(
                         project.duration,
-                        style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                        style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant),
                       ),
                       const SizedBox(width: 16),
-                      const Icon(Icons.location_on, size: 14, color: Color(0xFF94A3B8)),
+                      Icon(Icons.location_on, size: 14, color: theme.colorScheme.onSurfaceVariant),
                       const SizedBox(width: 4),
                       Text(
                         project.location,
-                        style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                        style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -593,9 +594,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+              border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.1), width: 0.8),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.04),
@@ -607,16 +608,16 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               children: [
-                const Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
+                Icon(Icons.search, color: theme.colorScheme.onSurfaceVariant, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
                     controller: _searchController,
                     onChanged: (v) => setState(() => _searchQuery = v),
-                    style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
-                    decoration: const InputDecoration(
+                    style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: theme.colorScheme.onSurface),
+                    decoration: InputDecoration(
                       hintText: 'Search founders, projects...',
-                      hintStyle: TextStyle(color: Color(0xFFADB5BD), fontSize: 14),
+                      hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6), fontSize: 14),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
                       isDense: true,
@@ -629,7 +630,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                       _searchController.clear();
                       setState(() => _searchQuery = '');
                     },
-                    child: const Icon(Icons.close, color: Color(0xFF94A3B8), size: 18),
+                    child: Icon(Icons.close, color: theme.colorScheme.onSurfaceVariant, size: 18),
                   ),
               ],
             ),
@@ -665,13 +666,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           const SizedBox(height: 20),
 
           // SKILLS filter chips
-          const Text(
+          Text(
             'SKILLS',
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF94A3B8),
+              color: theme.colorScheme.onSurfaceVariant,
               letterSpacing: 1.0,
             ),
           ),
@@ -686,19 +687,20 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 _selectedSkill,
                 (v) => setState(() => _selectedSkill = v),
                 const Color(0xFF0052FF),
+                Theme.of(context),
               ),
             ),
           ),
           const SizedBox(height: 16),
 
           // INDUSTRIES filter chips
-          const Text(
+          Text(
             'INDUSTRIES',
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF94A3B8),
+              color: theme.colorScheme.onSurfaceVariant,
               letterSpacing: 1.0,
             ),
           ),
@@ -713,6 +715,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 _selectedIndustry,
                 (v) => setState(() => _selectedIndustry = v),
                 const Color(0xFF7C3AED),
+                Theme.of(context),
               ),
             ),
           ),
@@ -722,13 +725,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Founders',
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               TextButton(
@@ -765,16 +768,16 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                         CircleAvatar(
                           radius: 28,
                           backgroundImage: NetworkImage(f['img']!),
-                          backgroundColor: const Color(0xFFEAEDFF),
+                          backgroundColor: theme.colorScheme.surfaceContainerHighest,
                         ),
                         const SizedBox(height: 6),
                         Text(
                           f['name']!.split(' ').first,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF475569),
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -792,21 +795,21 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'New Projects',
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               Text(
                 '${filtered.length} found',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 13,
-                  color: Color(0xFF94A3B8),
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -820,11 +823,11 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 40.0),
                 child: Column(
                   children: [
-                    const Icon(Icons.search_off, size: 48, color: Color(0xFFCBD5E1)),
+                    Icon(Icons.search_off, size: 48, color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                     const SizedBox(height: 12),
-                    const Text(
+                    Text(
                       'No projects match your filters.',
-                      style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                      style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 14),
                     ),
                     const SizedBox(height: 8),
                     TextButton(
@@ -852,24 +855,22 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
+        leading: const SizedBox(), // No back button
         title: Row(
           children: [
-            // Tappable logo — navigates to login (reset)
-            GestureDetector(
-              onTap: () => Navigator.pushReplacementNamed(context, '/login'),
-              child: Image.asset(
-                'assets/images/logo.png',
-                height: 28,
-                errorBuilder: (_, __, ___) => const Icon(
-                  Icons.rocket_launch,
-                  color: Color(0xFF0052FF),
-                  size: 22,
-                ),
+            // Logo
+            Image.asset(
+              'assets/images/logo.png',
+              height: 28,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.rocket_launch,
+                color: Color(0xFF0052FF),
+                size: 22,
               ),
             ),
             const SizedBox(width: 8),

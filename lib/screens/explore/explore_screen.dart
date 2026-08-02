@@ -52,24 +52,25 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: const Text(
+        leading: const SizedBox(),
+        title: Text(
           'Explore Projects',
-          style: TextStyle(
+          style: theme.textTheme.titleMedium?.copyWith(
             fontFamily: 'Plus Jakarta Sans',
             fontWeight: FontWeight.bold,
-            color: Color(0xFF0F172A),
           ),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
-            color: const Color(0xFFE2E8F0),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
             height: 1.0,
           ),
         ),
@@ -79,7 +80,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           children: [
             // Search Bar Container
             Container(
-              color: Colors.white,
+              color: theme.colorScheme.surface,
               padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
               child: Row(
                 children: [
@@ -87,10 +88,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8F9FC),
+                        color: theme.colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFFE2E8F0),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
                         ),
                       ),
                       child: TextField(
@@ -100,20 +101,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             _searchQuery = val;
                           });
                         },
-                        style: const TextStyle(fontSize: 14, color: Color(0xFF0F172A)),
+                        style: TextStyle(fontSize: 14, color: theme.colorScheme.onSurface),
                         decoration: InputDecoration(
-                          prefixIcon: const Icon(
+                          prefixIcon: Icon(
                             Icons.search,
-                            color: Color(0xFF777587),
+                            color: theme.colorScheme.onSurfaceVariant,
                             size: 20,
                           ),
                           hintText: 'Search founders or startups...',
-                          hintStyle: const TextStyle(color: Color(0xFF777587), fontSize: 14),
+                          hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6), fontSize: 14),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(vertical: 12),
                           suffixIcon: _searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.clear, size: 16, color: Color(0xFF777587)),
+                                  icon: Icon(Icons.clear, size: 16, color: theme.colorScheme.onSurfaceVariant),
                                   onPressed: () {
                                     _searchController.clear();
                                     setState(() {
@@ -132,10 +133,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     height: 48,
                     width: 48,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: theme.colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: const Color(0xFFE2E8F0),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
                       ),
                     ),
                     child: IconButton(
@@ -155,7 +156,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             // Horizontally scrollable list of filter chips
             Container(
               height: 52,
-              color: Colors.white,
+              color: theme.scaffoldBackgroundColor,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
@@ -174,17 +175,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           _selectedFilter = filter;
                         });
                       },
-                      selectedColor: const Color(0xFF0052FF), // Electric Blue
-                      backgroundColor: const Color(0xFFF8F9FC),
+                      selectedColor: const Color(0xFF0052FF),
+                      backgroundColor: theme.colorScheme.surfaceContainerHighest,
                       labelStyle: TextStyle(
                         fontFamily: 'Geist',
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: isSelected ? Colors.white : const Color(0xFF0F172A),
+                        color: isSelected ? Colors.white : theme.colorScheme.onSurface,
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       side: BorderSide(
-                        color: isSelected ? const Color(0xFF0052FF) : const Color(0xFFE2E8F0),
+                        color: isSelected ? const Color(0xFF0052FF) : theme.colorScheme.onSurface.withValues(alpha: 0.1),
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -195,9 +196,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 },
               ),
             ),
-            const Divider(
+            Divider(
               height: 1,
-              color: Color(0xFFE2E8F0),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
             ),
             // Vertical list of modern cards
             Expanded(
@@ -209,15 +210,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           Icon(
                             Icons.search_off_outlined,
                             size: 48,
-                            color: const Color(0xFF777587).withValues(alpha: 0.5),
+                            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                           ),
                           const SizedBox(height: 12),
-                          const Text(
+                          Text(
                             'No projects match your criteria',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF0F172A),
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -239,13 +240,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             );
                           },
                           child: Card(
-                            color: Colors.white,
+                            color: theme.colorScheme.surface,
                             elevation: 0,
                             margin: const EdgeInsets.only(bottom: 20.0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
-                              side: const BorderSide(
-                                color: Color(0xFFE2E8F0), // clean thin card border
+                              side: BorderSide(
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
                               ),
                             ),
                             child: Column(
@@ -275,23 +276,23 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      // Title in bold Slate-900
+                                      // Title in bold
                                       Text(
                                         project.name,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontFamily: 'Plus Jakarta Sans',
                                           fontWeight: FontWeight.bold,
                                           fontSize: 18,
-                                          color: Color(0xFF0F172A), // Slate-900
+                                          color: theme.colorScheme.onSurface,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
                                       // Snippet
                                       Text(
                                         project.snippet,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 14,
-                                          color: Color(0xFF464555),
+                                          color: theme.colorScheme.onSurfaceVariant,
                                         ),
                                       ),
                                       const SizedBox(height: 16),
@@ -309,18 +310,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                                   vertical: 4,
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  color: const Color(0xFFFAF8FF),
+                                                  color: theme.colorScheme.surfaceContainerHighest,
                                                   borderRadius: BorderRadius.circular(6),
                                                   border: Border.all(
-                                                    color: const Color(0xFFE2E8F0),
+                                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
                                                   ),
                                                 ),
                                                 child: Text(
                                                   tag,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w600,
-                                                    color: Color(0xFF464555),
+                                                    color: theme.colorScheme.onSurfaceVariant,
                                                   ),
                                                 ),
                                               );

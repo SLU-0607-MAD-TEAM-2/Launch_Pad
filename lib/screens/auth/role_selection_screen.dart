@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../providers/auth_provider.dart';
 import '../../utils/design_colors.dart';
-import '../../services/auth_service.dart';
 import '../home/main_shell.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
@@ -112,8 +114,18 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   Future<void> _onContinue() async {
     setState(() => _isLoading = true);
     try {
-      final auth = AuthService();
-      await auth.signUp(widget.name, widget.email, widget.password, _selectedRole!);
+      final auth = context.read<AuthProvider>();
+      await auth.signUp(widget.name, widget.email, widget.password);
+      await auth.updateProfileRole(_selectedRole!);
+
+      // Create a conversation with a seeded user so messages appear
+      final currentUserId = auth.currentUser?.id;
+      if (currentUserId != null) {
+        await _createWelcomeConversation(currentUserId);
+      }
+
+      // Wait for profile to be loaded
+      await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
@@ -123,6 +135,45 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _createWelcomeConversation(String userId) async {
+    try {
+      final db = FirebaseFirestore.instance;
+      // Create conversation with seeded user p1 (Sarah Chen)
+      final conversationId = '${userId}_p1';
+      await db.collection('conversations').doc(conversationId).set({
+        'participants': [userId, 'p1'],
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Add welcome messages
+      await db.collection('conversations').doc(conversationId).collection('messages').add({
+        'senderId': 'p1',
+        'receiverId': userId,
+        'content': 'Hey! Welcome to LaunchPad! I saw you just joined — love your profile!',
+        'timestamp': FieldValue.serverTimestamp(),
+        'isRead': true,
+      });
+      await db.collection('conversations').doc(conversationId).collection('messages').add({
+        'senderId': 'p1',
+        'receiverId': userId,
+        'content': 'I\'m working on an AI-powered code review tool. Would love your input!',
+        'timestamp': FieldValue.serverTimestamp(),
+        'isRead': false,
+      });
+
+      // Also create a match record
+      await db.collection('matches').add({
+        'userId': userId,
+        'matchedUserId': 'p1',
+        'participants': [userId, 'p1'],
+        'createdAt': FieldValue.serverTimestamp(),
+        'isMutual': true,
+      });
+    } catch (e) {
+      // Silently fail — conversation creation is non-critical
     }
   }
 }

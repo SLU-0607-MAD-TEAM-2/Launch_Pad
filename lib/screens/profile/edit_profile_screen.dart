@@ -1,4 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
+import '../../providers/auth_provider.dart';
+import '../../services/firebase_data_service.dart';
+import '../../utils/app_theme.dart';
 import '../../widgets/scale_tap.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -37,6 +44,9 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _firebaseService = FirebaseDataService();
+  final _imagePicker = ImagePicker();
+
   late final TextEditingController _nameController;
   late final TextEditingController _locationController;
   late final TextEditingController _bioController;
@@ -44,6 +54,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _skillsController;
   late final TextEditingController _githubController;
   late final TextEditingController _linkedinController;
+
+  XFile? _selectedImage;
+  Uint8List? _selectedImageBytes;
+  String? _currentAvatarUrl;
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -55,6 +70,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _skillsController = TextEditingController(text: widget.initialSkills);
     _githubController = TextEditingController(text: widget.initialGithub);
     _linkedinController = TextEditingController(text: widget.initialLinkedin);
+
+    // Load current user's avatar URL
+    _loadCurrentAvatar();
+  }
+
+  void _loadCurrentAvatar() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Try to get avatar from auth provider
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final authProvider = context.read<AuthProvider>();
+        if (authProvider.currentUser?.avatarUrl.isNotEmpty == true) {
+          setState(() {
+            _currentAvatarUrl = authProvider.currentUser!.avatarUrl;
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -82,21 +115,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ListTile(
                 leading: const Icon(Icons.photo_camera, color: Color(0xFF0052FF)),
                 title: const Text('Take Photo'),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(bc);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Camera simulated successfully.')),
+                  final image = await _imagePicker.pickImage(
+                    source: ImageSource.camera,
+                    maxWidth: 512,
+                    maxHeight: 512,
+                    imageQuality: 80,
                   );
+                  if (image != null) {
+                    final bytes = await image.readAsBytes();
+                    setState(() {
+                      _selectedImage = image;
+                      _selectedImageBytes = bytes;
+                    });
+                  }
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library, color: Color(0xFF0052FF)),
                 title: const Text('Choose from Gallery'),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(bc);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Gallery simulated successfully.')),
+                  final image = await _imagePicker.pickImage(
+                    source: ImageSource.gallery,
+                    maxWidth: 512,
+                    maxHeight: 512,
+                    imageQuality: 80,
                   );
+                  if (image != null) {
+                    final bytes = await image.readAsBytes();
+                    setState(() {
+                      _selectedImage = image;
+                      _selectedImageBytes = bytes;
+                    });
+                  }
                 },
               ),
             ],
@@ -106,18 +159,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  void _saveProfile() {
-    if (_formKey.currentState!.validate()) {
-      widget.onSave(
-        _nameController.text.trim(),
-        _locationController.text.trim(),
-        _bioController.text.trim(),
-        _roleController.text.trim(),
-        _skillsController.text.trim(),
-        _githubController.text.trim(),
-        _linkedinController.text.trim(),
-      );
+  void _saveProfile() async {
+    if (!_formKey.currentState!.validate()) return;
 
+    setState(() => _isUploading = true);
+
+    // Upload avatar if selected
+    String? avatarUrl = _currentAvatarUrl;
+    if (_selectedImage != null) {
+      avatarUrl = await _firebaseService.uploadAvatarFromXFile(_selectedImage!);
+    }
+
+    // Update auth provider with new avatar
+    if (avatarUrl != null && mounted) {
+      final auth = context.read<AuthProvider>();
+      if (auth.currentUser != null) {
+        await auth.updateProfile(auth.currentUser!.copyWith(avatarUrl: avatarUrl));
+      }
+    }
+
+    widget.onSave(
+      _nameController.text.trim(),
+      _locationController.text.trim(),
+      _bioController.text.trim(),
+      _roleController.text.trim(),
+      _skillsController.text.trim(),
+      _githubController.text.trim(),
+      _linkedinController.text.trim(),
+    );
+
+    setState(() => _isUploading = false);
+
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Profile updated successfully!'),
@@ -125,36 +198,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           duration: Duration(seconds: 2),
         ),
       );
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      });
+      Navigator.pop(context);
     }
   }
 
-  InputDecoration _buildInputDecoration(String labelText, String hintText) {
+  InputDecoration _buildInputDecoration(ThemeData theme, String labelText, String hintText) {
     return InputDecoration(
       labelText: labelText,
       hintText: hintText,
-      labelStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
-      hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-      floatingLabelStyle: const TextStyle(color: Color(0xFF0052FF), fontWeight: FontWeight.bold),
+      labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 14),
+      hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+      floatingLabelStyle: const TextStyle(color: AppColor.primaryBlue, fontWeight: FontWeight.bold),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: theme.colorScheme.surface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        borderSide: BorderSide(color: theme.colorScheme.onSurface.withValues(alpha: 0.15)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        borderSide: BorderSide(color: theme.colorScheme.onSurface.withValues(alpha: 0.15)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF0052FF), width: 1.5),
+        borderSide: const BorderSide(color: AppColor.primaryBlue, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -174,22 +242,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final isLargeScreen = mediaQuery.size.width > 600;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Color(0xFF0F172A)),
+          icon: Icon(Icons.close, color: theme.colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Edit Profile',
-          style: TextStyle(
+          style: theme.textTheme.titleMedium?.copyWith(
             fontFamily: 'Plus Jakarta Sans',
-            fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF0F172A),
           ),
         ),
         bottom: PreferredSize(
@@ -222,11 +288,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             children: [
                               CircleAvatar(
                                 radius: 48,
-                                backgroundImage: const NetworkImage(
-                                  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
-                                ),
+                                backgroundImage: _selectedImageBytes != null
+                                    ? MemoryImage(_selectedImageBytes!) as ImageProvider
+                                    : (_currentAvatarUrl?.isNotEmpty == true
+                                        ? NetworkImage(_currentAvatarUrl!) as ImageProvider
+                                        : const NetworkImage(
+                                            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+                                          ) as ImageProvider),
                                 backgroundColor: theme.colorScheme.surfaceContainerHighest,
                               ),
+                              if (_isUploading)
+                                const Positioned.fill(
+                                  child: CircleAvatar(
+                                    radius: 48,
+                                    backgroundColor: Colors.black38,
+                                    child: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               const Positioned(
                                 bottom: 0,
                                 right: 0,
@@ -247,13 +332,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 32),
 
                       // Section Title
-                      const Text(
+                      Text(
                         'PROFILE DETAILS',
                         style: TextStyle(
                           fontFamily: 'Geist',
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF64748B),
+                          color: theme.colorScheme.onSurfaceVariant,
                           letterSpacing: 1.5,
                         ),
                       ),
@@ -262,8 +347,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       // Full Name
                       TextFormField(
                         controller: _nameController,
-                        style: const TextStyle(fontSize: 15, color: Color(0xFF0F172A)),
-                        decoration: _buildInputDecoration('Full Name', 'John Doe'),
+                        style: TextStyle(fontSize: 15, color: theme.colorScheme.onSurface),
+                        decoration: _buildInputDecoration(theme, 'Full Name', 'John Doe'),
                         validator: (value) => value == null || value.trim().isEmpty
                             ? 'Please enter your name'
                             : null,
@@ -273,8 +358,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       // Role
                       TextFormField(
                         controller: _roleController,
-                        style: const TextStyle(fontSize: 15, color: Color(0xFF0F172A)),
-                        decoration: _buildInputDecoration('Professional Role', 'e.g. UI/UX Designer'),
+                        style: TextStyle(fontSize: 15, color: theme.colorScheme.onSurface),
+                        decoration: _buildInputDecoration(theme, 'Professional Role', 'e.g. UI/UX Designer'),
                         validator: (value) => value == null || value.trim().isEmpty
                             ? 'Please enter your professional role'
                             : null,
@@ -284,8 +369,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       // Location
                       TextFormField(
                         controller: _locationController,
-                        style: const TextStyle(fontSize: 15, color: Color(0xFF0F172A)),
-                        decoration: _buildInputDecoration('Location', 'e.g. San Francisco, CA'),
+                        style: TextStyle(fontSize: 15, color: theme.colorScheme.onSurface),
+                        decoration: _buildInputDecoration(theme, 'Location', 'e.g. San Francisco, CA'),
                         validator: (value) => value == null || value.trim().isEmpty
                             ? 'Please enter your location'
                             : null,
@@ -296,8 +381,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       TextFormField(
                         controller: _bioController,
                         maxLines: 4,
-                        style: const TextStyle(fontSize: 15, color: Color(0xFF0F172A)),
-                        decoration: _buildInputDecoration('Short Bio', 'Tell us about yourself...'),
+                        style: TextStyle(fontSize: 15, color: theme.colorScheme.onSurface),
+                        decoration: _buildInputDecoration(theme, 'Short Bio', 'Tell us about yourself...'),
                         validator: (value) => value == null || value.trim().isEmpty
                             ? 'Please write a short bio'
                             : null,
@@ -305,13 +390,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 32),
 
                       // Section Title: Skills & Social
-                      const Text(
+                      Text(
                         'SKILLS & LINKS',
                         style: TextStyle(
                           fontFamily: 'Geist',
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF64748B),
+                          color: theme.colorScheme.onSurfaceVariant,
                           letterSpacing: 1.5,
                         ),
                       ),
@@ -320,8 +405,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       // Skills (comma-separated)
                       TextFormField(
                         controller: _skillsController,
-                        style: const TextStyle(fontSize: 15, color: Color(0xFF0F172A)),
+                        style: TextStyle(fontSize: 15, color: theme.colorScheme.onSurface),
                         decoration: _buildInputDecoration(
+                          theme,
                           'Technical Skills',
                           'e.g. Flutter, Figma, Dart (comma-separated)',
                         ),
@@ -331,16 +417,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       // GitHub Profile Link
                       TextFormField(
                         controller: _githubController,
-                        style: const TextStyle(fontSize: 15, color: Color(0xFF0F172A)),
-                        decoration: _buildInputDecoration('GitHub URL', 'https://github.com/username'),
+                        style: TextStyle(fontSize: 15, color: theme.colorScheme.onSurface),
+                        decoration: _buildInputDecoration(theme, 'GitHub URL', 'https://github.com/username'),
                       ),
                       const SizedBox(height: 20),
 
                       // LinkedIn Profile Link
                       TextFormField(
                         controller: _linkedinController,
-                        style: const TextStyle(fontSize: 15, color: Color(0xFF0F172A)),
-                        decoration: _buildInputDecoration('LinkedIn URL', 'https://linkedin.com/in/username'),
+                        style: TextStyle(fontSize: 15, color: theme.colorScheme.onSurface),
+                        decoration: _buildInputDecoration(theme, 'LinkedIn URL', 'https://linkedin.com/in/username'),
                       ),
                       const SizedBox(height: 36),
 

@@ -501,28 +501,29 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
   }
 
   Widget _buildEmptyState() {
+    final theme = Theme.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.people_outline, size: 72, color: Color(0xFFCBD5E1)),
+            Icon(Icons.people_outline, size: 72, color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               "You've seen everyone!",
               style: TextStyle(
                 fontFamily: 'Plus Jakarta Sans',
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF475569),
+                color: theme.colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Try adjusting your filters or check back later.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)),
+              style: TextStyle(fontSize: 14, color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 28),
             ElevatedButton.icon(
@@ -662,20 +663,16 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                       ),
                       onPressed: () {
                         setState(() => _showMatchOverlay = false);
-                        final shell = context.findAncestorStateOfType<MainShellState>();
-                        if (shell != null) {
-                          shell.setSelectedIndex(1);
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ChatScreen(
-                                name: match.name,
-                                avatar: match.avatarUrl,
-                              ),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatScreen(
+                              name: match.name,
+                              avatar: match.avatarUrl,
+                              userId: match.id,
                             ),
-                          );
-                        }
+                          ),
+                        );
                       },
                       child: const Text(
                         'Start Chatting',
@@ -722,9 +719,9 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
               Container(
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: theme.colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+                  border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.1), width: 0.8),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.04),
@@ -736,7 +733,7 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Row(
                   children: [
-                    const Icon(Icons.search, color: Color(0xFF94A3B8), size: 18),
+                    Icon(Icons.search, color: theme.colorScheme.onSurfaceVariant, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: TextField(
@@ -745,10 +742,10 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                           _searchQuery = v;
                           _applyFilters();
                         },
-                        style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
-                        decoration: const InputDecoration(
+                        style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: theme.colorScheme.onSurface),
+                        decoration: InputDecoration(
                           hintText: 'Search by skill, role or industry...',
-                          hintStyle: TextStyle(color: Color(0xFFADB5BD), fontSize: 13),
+                          hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6), fontSize: 13),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
                           isDense: true,
@@ -764,7 +761,7 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                           });
                           _applyFilters();
                         },
-                        child: const Icon(Icons.close, color: Color(0xFF94A3B8), size: 18),
+                        child: Icon(Icons.close, color: theme.colorScheme.onSurfaceVariant, size: 18),
                       ),
                   ],
                 ),
@@ -798,10 +795,10 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                         margin: const EdgeInsets.only(right: 8),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: isActive ? const Color(0xFF0052FF) : Colors.white,
+                          color: isActive ? const Color(0xFF0052FF) : theme.colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: isActive ? const Color(0xFF0052FF) : const Color(0xFFE2E8F0),
+                            color: isActive ? const Color(0xFF0052FF) : theme.colorScheme.onSurface.withValues(alpha: 0.1),
                           ),
                         ),
                         child: Text(
@@ -810,7 +807,7 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                             fontFamily: 'Geist',
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: isActive ? Colors.white : const Color(0xFF475569),
+                            color: isActive ? Colors.white : theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -826,8 +823,8 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
         Expanded(
           child: _isLoading
               ? Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
+                  baseColor: theme.colorScheme.surfaceContainerHighest,
+                  highlightColor: theme.colorScheme.surface,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -835,7 +832,7 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                         Container(
                           height: 44,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: theme.colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
@@ -850,7 +847,7 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                               height: 36,
                               margin: const EdgeInsets.only(right: 8),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: theme.colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                             ),
@@ -860,7 +857,7 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: theme.colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),

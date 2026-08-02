@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:launchpad_flutter_app/utils/app_theme.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -12,19 +14,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<Map<String, String>> _slides = [
+  final List<Map<String, dynamic>> _slides = [
     {
-      'icon': '🚀',
+      'icon': Iconsax.flash_1,
       'title': 'For Founders',
       'subtitle': 'Have a great idea but need a team? Post your project and find skilled developers and designers ready to build with you.',
     },
     {
-      'icon': '💻',
+      'icon': Iconsax.code,
       'title': 'For Developers',
       'subtitle': 'Looking for exciting projects? Swipe through opportunities, apply to join, and start building real products.',
     },
     {
-      'icon': '🎨',
+      'icon': Iconsax.pen_tool,
       'title': 'For Designers',
       'subtitle': 'Showcase your skills, connect with founders, and help shape the next big thing in tech.',
     },
@@ -54,15 +56,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             // Skip button
             Align(
               alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: _completeOnboarding,
-                child: const Text(
-                  'Skip',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF64748B),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 24, right: 24),
+                child: ElevatedButton(
+                  onPressed: _completeOnboarding,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0052FF),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Skip',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -82,9 +95,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          slide['icon']!,
-                          style: const TextStyle(fontSize: 80),
+                        Icon(
+                          slide['icon'] as IconData,
+                          size: 80,
+                          color: AppColor.primaryBlue,
                         ),
                         const SizedBox(height: 40),
                         Text(

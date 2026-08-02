@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
+import '../../providers/theme_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../screens/profile/edit_profile_screen.dart';
 import '../../utils/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -14,6 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _emailDigests = false;
 
   void _showLogoutDialog(BuildContext context) {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -21,19 +27,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          backgroundColor: AppColor.white,
-          title: Text('Confirm Log Out', style: AppTypography.headlineMedium),
+          backgroundColor: theme.colorScheme.surface,
+          title: Text('Confirm Log Out', style: theme.textTheme.headlineMedium),
           content: Text(
             'Are you sure you want to log out of LaunchPad?',
-            style: AppTypography.bodySmall,
+            style: theme.textTheme.bodySmall,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
                 'Cancel',
-                style: AppTypography.labelLarge
-                    .copyWith(color: AppColor.mutedText),
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             ElevatedButton(
@@ -48,6 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () {
                 Navigator.pop(dialogContext);
                 WidgetsBinding.instance.addPostFrameCallback((_) {
+                  context.read<AuthProvider>().logout();
                   if (mounted) {
                     Navigator.pushReplacementNamed(context, '/');
                   }
@@ -63,19 +71,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeProvider = context.watch<ThemeProvider>();
+    final isDark = themeProvider.isDark;
+
     return Scaffold(
-      backgroundColor: AppColor.screenBgLight,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColor.screenBgLight,
+        backgroundColor: theme.scaffoldBackgroundColor,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Text('Settings', style: AppTypography.titleMedium),
+        title: Text('Settings', style: theme.textTheme.titleMedium),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: AppColor.borderHairline.withValues(alpha: 0.4),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
             height: 1,
           ),
         ),
@@ -84,35 +96,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 20),
           children: [
-            _sectionHeader('ACCOUNT'),
+            _sectionHeader('ACCOUNT', theme),
             _buildItem(
               icon: Iconsax.user_edit,
               label: 'Edit Profile',
-              onTap: () => Navigator.pushNamed(context, '/edit_profile'),
+              onTap: () {
+                final user = context.read<AuthProvider>().currentUser;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => EditProfileScreen(
+                      initialName: user?.name ?? FirebaseAuth.instance.currentUser?.displayName ?? '',
+                      initialLocation: user?.location ?? '',
+                      initialBio: user?.bio ?? '',
+                      initialRole: user?.role.name ?? '',
+                      initialSkills: user?.skills.join(', ') ?? '',
+                      initialGithub: user?.githubUrl ?? '',
+                      initialLinkedin: user?.linkedInUrl ?? '',
+                      onSave: (n, l, b, r, s, g, li) {},
+                    ),
+                  ),
+                );
+              },
+              theme: theme,
             ),
             _buildItem(
               icon: Iconsax.message_edit,
               label: 'Send Feedback',
               onTap: () => Navigator.pushNamed(context, '/feedback'),
+              theme: theme,
             ),
 
             const SizedBox(height: 8),
-            _sectionHeader('NOTIFICATIONS'),
+            _sectionHeader('APPEARANCE', theme),
+            _buildSwitch(
+              icon: isDark ? Iconsax.moon5 : Iconsax.sun_1,
+              label: 'Dark Mode',
+              value: isDark,
+              onChanged: (_) => themeProvider.toggleTheme(),
+              theme: theme,
+            ),
+
+            const SizedBox(height: 8),
+            _sectionHeader('NOTIFICATIONS', theme),
             _buildSwitch(
               icon: Iconsax.notification,
               label: 'Push Notifications',
               value: _pushNotifications,
               onChanged: (val) => setState(() => _pushNotifications = val),
+              theme: theme,
             ),
             _buildSwitch(
               icon: Iconsax.sms,
               label: 'Email Digests',
               value: _emailDigests,
               onChanged: (val) => setState(() => _emailDigests = val),
+              theme: theme,
             ),
 
             const SizedBox(height: 8),
-            _sectionHeader('SYSTEM'),
+            _sectionHeader('SYSTEM', theme),
             _buildItem(
               icon: Iconsax.info_circle,
               label: 'About LaunchPad',
@@ -132,33 +175,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 );
               },
+              theme: theme,
             ),
 
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Divider(
-                color: AppColor.borderHairline.withValues(alpha: 0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
               ),
             ),
             const SizedBox(height: 8),
 
             // Log Out row
-            _LogoutTile(onTap: () => _showLogoutDialog(context)),
+            _LogoutTile(onTap: () => _showLogoutDialog(context), theme: theme),
           ],
         ),
       ),
     );
   }
 
-  Widget _sectionHeader(String label) {
+  Widget _sectionHeader(String label, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 6),
       child: Text(
         label,
-        style: AppTypography.captionUppercase.copyWith(
-          color: AppColor.mutedText,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
           letterSpacing: 1.4,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -168,16 +213,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    required ThemeData theme,
   }) {
     return _SettingsTile(
       icon: icon,
       label: label,
       onTap: onTap,
-      trailing: const Icon(
+      trailing: Icon(
         Iconsax.arrow_right_3,
         size: 18,
-        color: AppColor.mutedText,
+        color: theme.colorScheme.onSurfaceVariant,
       ),
+      theme: theme,
     );
   }
 
@@ -186,6 +233,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String label,
     required bool value,
     required ValueChanged<bool> onChanged,
+    required ThemeData theme,
   }) {
     return _SettingsTile(
       icon: icon,
@@ -195,10 +243,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         value: value,
         activeTrackColor: AppColor.primaryBlue.withValues(alpha: 0.5),
         activeThumbColor: AppColor.primaryBlue,
-        inactiveThumbColor: AppColor.mutedText,
-        inactiveTrackColor: AppColor.borderHairline,
+        inactiveThumbColor: theme.colorScheme.onSurfaceVariant,
+        inactiveTrackColor: theme.colorScheme.onSurface.withValues(alpha: 0.2),
         onChanged: onChanged,
       ),
+      theme: theme,
     );
   }
 }
@@ -210,12 +259,14 @@ class _SettingsTile extends StatefulWidget {
   final String label;
   final VoidCallback? onTap;
   final Widget trailing;
+  final ThemeData theme;
 
   const _SettingsTile({
     required this.icon,
     required this.label,
     required this.onTap,
     required this.trailing,
+    required this.theme,
   });
 
   @override
@@ -227,6 +278,9 @@ class _SettingsTileState extends State<_SettingsTile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = widget.theme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return GestureDetector(
       onTapDown: widget.onTap != null ? (_) => setState(() => _pressed = true) : null,
       onTapUp: widget.onTap != null
@@ -244,16 +298,16 @@ class _SettingsTileState extends State<_SettingsTile> {
         decoration: BoxDecoration(
           color: _pressed
               ? AppColor.primaryBlue.withValues(alpha: 0.04)
-              : AppColor.white,
+              : theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(AppShapes.radiusXL),
           border: Border.all(
             color: _pressed
                 ? AppColor.primaryBlue.withValues(alpha: 0.2)
-                : AppColor.borderHairline.withValues(alpha: 0.5),
+                : theme.colorScheme.onSurface.withValues(alpha: 0.08),
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColor.headingDark.withValues(alpha: 0.03),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -279,7 +333,7 @@ class _SettingsTileState extends State<_SettingsTile> {
               ),
               const SizedBox(width: 14),
               Expanded(
-                child: Text(widget.label, style: AppTypography.titleSmall),
+                child: Text(widget.label, style: theme.textTheme.titleSmall),
               ),
               widget.trailing,
             ],
@@ -294,7 +348,8 @@ class _SettingsTileState extends State<_SettingsTile> {
 
 class _LogoutTile extends StatefulWidget {
   final VoidCallback onTap;
-  const _LogoutTile({required this.onTap});
+  final ThemeData theme;
+  const _LogoutTile({required this.onTap, required this.theme});
 
   @override
   State<_LogoutTile> createState() => _LogoutTileState();
@@ -305,6 +360,8 @@ class _LogoutTileState extends State<_LogoutTile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = widget.theme;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) {
@@ -345,7 +402,7 @@ class _LogoutTileState extends State<_LogoutTile> {
               Expanded(
                 child: Text(
                   'Log Out',
-                  style: AppTypography.titleSmall.copyWith(
+                  style: theme.textTheme.titleSmall?.copyWith(
                     color: AppColor.error,
                   ),
                 ),

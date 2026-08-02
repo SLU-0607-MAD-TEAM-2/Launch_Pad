@@ -6,7 +6,6 @@ import '../messages/messages_list_screen.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import '../../widgets/launchpad_bottom_nav.dart';
-import '../../utils/app_theme.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -23,9 +22,10 @@ class MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     final nav = context.watch<NavProvider>();
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColor.screenBgLight,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: IndexedStack(
         index: nav.currentIndex,
         children: const [

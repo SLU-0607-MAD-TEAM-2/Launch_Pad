@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/startup_project.dart';
+import '../../models/application.dart';
+import '../../services/firebase_data_service.dart';
 
 class ProjectDetailsScreen extends StatefulWidget {
   final StartupProject project;
@@ -15,8 +18,10 @@ class ProjectDetailsScreen extends StatefulWidget {
 
 class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with SingleTickerProviderStateMixin {
   bool _isApplied = false;
+  bool _isSubmitting = false;
   late AnimationController _animController;
   late Animation<double> _scaleAnimation;
+  final FirebaseDataService _firebaseService = FirebaseDataService();
 
   @override
   void initState() {
@@ -36,27 +41,82 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with Single
     super.dispose();
   }
 
-  void _handleApply() {
-    if (_isApplied) return;
+  void _handleApply() async {
+    if (_isApplied || _isSubmitting) return;
+
+    // Show dialog to get cover note
+    final coverNote = await _showApplyDialog();
+    if (coverNote == null) return; // User cancelled
+
+    setState(() => _isSubmitting = true);
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() => _isSubmitting = false);
+      return;
+    }
+
+    final app = Application(
+      id: '',
+      projectId: widget.project.id,
+      projectName: widget.project.name,
+      applicantId: user.uid,
+      coverNote: coverNote,
+    );
+
+    await _firebaseService.submitApplication(app);
 
     setState(() {
       _isApplied = true;
+      _isSubmitting = false;
     });
+
     _animController.forward().then((_) {
       _animController.reverse();
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 8),
-            Text('Application sent successfully to ${widget.project.name}!'),
-          ],
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 8),
+              Text('Application sent to ${widget.project.name}!'),
+            ],
+          ),
+          backgroundColor: const Color(0xFF0052FF),
+          behavior: SnackBarBehavior.floating,
         ),
-        backgroundColor: const Color(0xFF0052FF), // Electric Blue
-        behavior: SnackBarBehavior.floating,
+      );
+    }
+  }
+
+  Future<String?> _showApplyDialog() async {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Apply to Join'),
+        content: TextField(
+          controller: controller,
+          maxLines: 3,
+          decoration: const InputDecoration(
+            hintText: 'Why do you want to join this project?',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0052FF)),
+            child: const Text('Apply', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
@@ -66,13 +126,13 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with Single
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -80,7 +140,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with Single
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
-            color: const Color(0xFFE2E8F0),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
             height: 1.0,
           ),
         ),
@@ -121,7 +181,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with Single
                           style: theme.textTheme.headlineLarge?.copyWith(
                             fontFamily: 'Plus Jakarta Sans',
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF0F172A), // Slate-900
+                            color: theme.colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -158,13 +218,13 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with Single
                   ),
                   const SizedBox(height: 32),
                   // Seeking Roles subheading
-                  const Text(
+                  Text(
                     'Seeking Roles',
                     style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -175,9 +235,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with Single
                     children: widget.project.seekingRoles.map((role) {
                       return Chip(
                         label: Text(role),
-                        backgroundColor: const Color(0xFFEAEDFF),
-                        labelStyle: const TextStyle(
-                          color: Color(0xFF0052FF),
+                        backgroundColor: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.primary,
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
@@ -191,20 +251,20 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with Single
                   ),
                   const SizedBox(height: 32),
                   // Description
-                  const Text(
+                  Text(
                     'About the Project',
                     style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     widget.project.description,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF464555), // Slate-600/700
+                      color: theme.colorScheme.onSurfaceVariant,
                       height: 1.6,
                     ),
                   ),
@@ -244,7 +304,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with Single
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: _handleApply,
+                      onPressed: _isSubmitting ? null : _handleApply,
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
                         child: _isApplied
@@ -255,29 +315,55 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> with Single
                                   Icon(Icons.check, size: 20),
                                   SizedBox(width: 8),
                                   Text(
-                                    'Applied ✓',
+                                    'Applied',
                                     style: TextStyle(
                                       fontFamily: 'Plus Jakarta Sans',
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ],
                               )
-                            : const Row(
-                                key: ValueKey('apply'),
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Apply to Join',
-                                    style: TextStyle(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                            : _isSubmitting
+                                ? const Row(
+                                    key: ValueKey('submitting'),
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Submitting...',
+                                        style: TextStyle(
+                                          fontFamily: 'Plus Jakarta Sans',
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : const Row(
+                                    key: ValueKey('apply'),
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Apply to Join',
+                                        style: TextStyle(
+                                          fontFamily: 'Plus Jakarta Sans',
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
                       ),
                     ),
                   ),
