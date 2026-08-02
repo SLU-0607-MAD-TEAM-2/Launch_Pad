@@ -83,21 +83,21 @@ Explore Apply to Join Messages ──> Chat Profile
 
 launchpad_flutter_app/
 ├── lib/
-│ ├── main.dart
-│ ├── screens/
-│ │ ├── auth/ # login_screen.dart, role_selection_screen.dart (planned)
-│ │ ├── home/ # home_feed_screen.dart (Recommended Startups / Teammates)
-│ │ ├── explore/ # explore_screen.dart (search + filters)
-│ │ ├── messages/ # messages_list_screen.dart, chat_screen.dart
-│ │ └── profile/ # profile_screen.dart
-│ ├── widgets/ # Reusable UI components (startup card, chat bubble, etc.)
-│ ├── models/ # user_profile.dart, startup_project.dart, application.dart
-│ ├── services/ # auth_service.dart, firestore_service.dart
-│ ├── providers/ # swipe_provider.dart (state management)
-│ └── utils/ # date_formatter.dart
+│   ├── main.dart
+│   ├── screens/
+│   │   ├── auth/          # login_screen.dart, role_selection_screen.dart (planned)
+│   │   ├── home/          # home_feed_screen.dart (Recommended Startups / Teammates)
+│   │   ├── explore/       # explore_screen.dart (search + filters)
+│   │   ├── messages/      # messages_list_screen.dart, chat_screen.dart
+│   │   └── profile/       # profile_screen.dart
+│   ├── widgets/           # Reusable UI components (startup card, chat bubble, etc.)
+│   ├── models/            # user_profile.dart, startup_project.dart, application.dart
+│   ├── services/          # auth_service.dart, firestore_service.dart
+│   ├── providers/         # swipe_provider.dart (state management)
+│   └── utils/             # date_formatter.dart
 ├── assets/
-│ ├── images/
-│ └── icons/
+│   ├── images/
+│   └── icons/
 ├── test/
 ├── pubspec.yaml
 ├── .gitignore
@@ -108,9 +108,11 @@ launchpad_flutter_app/
 
 - **Framework:** Flutter (Dart)
 - **State management:** Provider
-- **Backend:** Firebase (Auth, Firestore for profiles/projects/applications, Storage for images)
+- **Backend:** Firebase (Auth with email/password + Google Sign-in, Firestore for data, Storage for images)
 - **Swipe cards:** `flutter_card_swiper`
 - **Links:** `url_launcher` for opening Portfolio/GitHub/LinkedIn links
+- **Auth:** `firebase_auth` + `google_sign_in`
+- **Database:** `cloud_firestore`
 
 ## Design
 
@@ -121,7 +123,7 @@ Wireframes for the Home, Explore, Messages, and Profile screens were designed by
 - **Week 1:** Proposal, wireframes, project setup ✅ (this repo)
 - **Week 2:** Build static UI screens (Home, Explore, Messages, Profile, and Login) ✅
 - **Week 3:** Connected screens to JSON data, added feedback form with validation, added error handling, implemented animations across multiple screens ✅
-- **Week 4:** Final polish across all screens, consistent branding, resolved outstanding UI issues, updated documentation with final screenshots, demo video, and reflection ✅
+- **Week 4+:** Wire up Firebase (auth, applications, real-time chat), push notifications
 
 ## Week 2 Deliverable
 
@@ -276,24 +278,70 @@ Swiping triggers real-time toast notifications for saved/skipped profiles:
 - Fixed widget_test.dart to pass required apiService parameter
 - Removed duplicate screens (home/explore_screen, profile/settings_screen, launchpad_loading, swipe_discovery_screen, home_feed_screen)
 
-## Version Control Log
-- Repository initialized and scaffolded locally.
-- Pushed to `SLU-0607-MAD-TEAM-2/Launch_Pad` on GitHub by Joshua Gomez (Documentation & Version Control Manager), July 12 2026.
+## Week 4 Changes
+
+### Firebase Integration
+- Configured Firebase project (`launchpad-app-ec1e4`) with Android, iOS, Web, macOS, Windows support
+- Added `Firebase.initializeApp()` in `main.dart` with `firebase_options.dart`
+- Added `google_sign_in` package for Google authentication
+
+### Authentication
+- Rewrote `AuthProvider` with real Firebase Auth (email/password + Google Sign-in)
+- Login screen now creates real Firebase auth sessions
+- Sign-up creates Firebase user + Firestore user profile document
+- Splash screen checks `FirebaseAuth.instance.currentUser` for auth-aware routing
+- Role selection writes role to Firestore user document
+- Logout signs out from both Firebase Auth and Google
+
+### Firestore Data Layer
+- Created `FirebaseDataService` with methods for users, projects, matches, messages, and applications
+- Created `firestore.rules` with security rules (deployed to Firebase)
+- Created auto-seed script (`lib/scripts/seed_firestore.dart`) that populates Firestore from JSON on first launch
+- Updated `MatchModel` and `Message` to handle Firestore `Timestamp` type
+
+### ID Normalization
+- Fixed ID inconsistency: normalized all IDs to `p1-p10` scheme across `projects.json`, `applications.json`, and `firestore_service.dart`
 
 ## How to Run Locally
 
+### Prerequisites
+- Flutter SDK installed
+- Firebase CLI installed (`npm install -g firebase-tools`)
+- Firebase project created at https://console.firebase.google.com
+
+### Setup Steps
+
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/SLU-0607-MAD-TEAM-2/Launch_Pad.git
 
-# Navigate into project folder
+# 2. Navigate into project folder
 cd Launch_Pad
 
-# Install dependencies
+# 3. Install FlutterFire CLI (one-time)
+dart pub global activate flutterfire_cli
+
+# 4. Configure Firebase (generates firebase_options.dart)
+flutterfire configure --project=YOUR_PROJECT_ID
+
+# 5. Enable auth methods in Firebase Console:
+#    - Authentication > Sign-in method > Enable Email/Password
+#    - Authentication > Sign-in method > Enable Google
+
+# 6. Install dependencies
 flutter pub get
 
-# Run on web / emulator
+# 7. Run the app
 flutter run -d chrome
+```
+
+### First Launch
+On first launch, the app automatically seeds Firestore with sample data (10 profiles, 8 projects, 3 matches, 8 messages, 3 applications). Check your Firebase Console > Firestore Database to verify.
+
+### Firestore Security Rules
+Rules are deployed via:
+```bash
+firebase deploy --only firestore:rules
 ```
 
 
